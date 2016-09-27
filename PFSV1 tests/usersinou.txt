@@ -1,0 +1,2 @@
+Import-Module ActiveDirectory
+Get-ADUser -SearchBase “OU=Argentina,dc=apatricio,dc=local” -Filter * -ResultSetSize 5000 | Select Name,SamAccountName
