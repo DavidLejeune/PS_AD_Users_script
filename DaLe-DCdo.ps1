@@ -11,7 +11,8 @@ Write-Host '    1. '$Menu1;
 Write-Host '    2. '$Menu2;
 Write-Host "";
 
-$Menu = Read-Host -Prompt 'Select an option '
+$Menu = Read-Host -Prompt 'Select an option ';
+
 
 
 switch ($Menu) 
@@ -47,4 +48,4 @@ function Create-User()
     $UserpathOU = Read-Host -Prompt '> OU ';
     New-ADUser -name $Username -GivenName $Givenname -SurName $Surname -DisplayName $Displayname -Path "ou="$UserpathOU",dc=POLIFORMADL.COM,dc=local";
     
-}
+}ste
