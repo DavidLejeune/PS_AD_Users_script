@@ -19,4 +19,15 @@
     Write-Host ' #####################################'
     Write-Host ''
 
-    help -full Get-Date 
+    $Date = Get-Date
+
+    Write-Host ' Welcome'$env:username
+    Write-Host ' Date'$Date
+    Write-Host ''
+    Write-Host 'Enter a description for the log entry'
+    $Descr = Read-Host -Prompt ' ';
+    $Entry = $Date.ToString() + ";" + $env:username.ToString() + ";" + $Descr.ToString() + ";"
+   
+    Add-Content logbook.csv $Entry
+    Write-Host ''
+    Write-Host 'Entry has been logged , GREAT SUCCESS'
