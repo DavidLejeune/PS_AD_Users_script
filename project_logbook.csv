@@ -3,3 +3,4 @@ Date,UserID,LogDescription
 9/28/2016 16:45,David,renamed logbook.csv for easier script launch
 9/28/2016 17:25,David,Changed logbook script to be CSV; and replace instring commas 
 28/09/2016 18:39:03,Administrator,Testing scripts on PFSV1 server (use command powershell.exe -executionpolicy bypass -file ),
+28/09/2016 19:20:10,Administrator,Changed SetExecutionpolicy on TestVM,

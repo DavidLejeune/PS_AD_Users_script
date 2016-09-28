@@ -28,7 +28,8 @@
     $Descr = Read-Host -Prompt ' ';
     $Descr = $Descr -replace ",",";" ;
     $Entry = $Date.ToString() + "," + $env:username.ToString() + "," + $Descr.ToString() + ","
-   
+
     Add-Content project_logbook.csv $Entry
     Write-Host ''
     Write-Host 'Entry has been logged , GREAT SUCCESS'
+    sleep(5)
