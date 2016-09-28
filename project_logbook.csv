@@ -1,3 +1,4 @@
-Date;UserID;LogDescription;
-9/28/2016 3:47:35 PM;David;Finished powershell log script;
-9/28/2016 4:45:37 PM;David;renamed logbook.csv for easier script launch;
+Date,UserID,LogDescription
+9/28/2016 15:47,David,Finished powershell log script
+9/28/2016 16:45,David,renamed logbook.csv for easier script launch
+9/28/2016 17:25,David,Changed logbook script to be CSV; and replace instring commas 

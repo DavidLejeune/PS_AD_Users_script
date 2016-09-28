@@ -26,7 +26,8 @@
     Write-Host ''
     Write-Host ' Enter a description for the log entry'
     $Descr = Read-Host -Prompt ' ';
-    $Entry = $Date.ToString() + ";" + $env:username.ToString() + ";" + $Descr.ToString() + ";"
+    $Descr = $Descr -replace ",",";" ;
+    $Entry = $Date.ToString() + "," + $env:username.ToString() + "," + $Descr.ToString() + ","
    
     Add-Content project_logbook.csv $Entry
     Write-Host ''
