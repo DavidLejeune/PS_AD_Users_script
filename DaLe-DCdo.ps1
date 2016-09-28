@@ -1,21 +1,24 @@
 ﻿Import-Module ActiveDirectory
 
+#------------------------------------------------------------------------------
+#Script Variables
 $Menu1 = "Create new OU";
 $Menu2 = "New User"
 $Menu3 = "Bulk create User from CSV"
 
+
+#------------------------------------------------------------------------------
+#Functions
 function Create-OU()
 {
-
+    #create top level OU (needs to worked out further for depth)
     $OUname = Read-Host -Prompt '> OU name ';
-    New-ADOrganizationalUnit $OUname -path "dc=POLIFORMA,dc=COM";
-
+    New-ADOrganizationalUnit $OUname -path;
 }
-
-
 
 function Create-User()
 {
+    #Create user based on user inpu (input ok, ad action fail)
     $Username = Read-Host -Prompt '> full user ';
     $Givenname = Read-Host -Prompt '> given name ';
     $Surname = Read-Host -Prompt '> surname ';
@@ -29,7 +32,10 @@ function Create-User()
 
 function Bulk-UserCreate()
 {
+  #main task
+  #create users based on csv date
 
+  #import data
   $Users = Import-Csv -Delimiter ";" -Path "personeel.csv"
 
       Write-Host 'Displaying list of Users'
@@ -37,6 +43,7 @@ function Bulk-UserCreate()
       Write-Host "Account`tDistinguishedName"
       Write-Host "-------`t-----------------"
 
+  #loop through all users
   foreach ($User in $Users)
   {
       $Displayname = $User.Naam + " " + $User.Voornaam
@@ -87,12 +94,15 @@ function Bulk-UserCreate()
       #          -ChangePasswordAtLogon $false –PasswordNeverExpires $true -server DLSV1 -whatif
 
   }
+
+  Write-Host ""
+  Write-Host "Finished reading csv file"
 }
 
 function Show-Header()
 {
+  #making this script sexy
     Clear
-
     Write-Host '      ____              __        '
     Write-Host '     / __ \   ____ _   / /      ___ '
     Write-Host '    / / / /  / __ `/  / /      / _ \'
@@ -116,34 +126,38 @@ function Show-Header()
     Write-Host '    2. '$Menu2;
     Write-Host '    3. '$Menu3;
     Write-Host "";
-
 }
 
 
-
+#------------------------------------------------------------------------------
+#Script
 
 
 Show-Header;
-$Menu = Read-Host -Prompt 'Select an option ';
 
+#Select action
+$Menu = Read-Host -Prompt 'Select an option ';
 switch ($Menu)
     {
         1
-        {
-            Write-Host "`nYou have selected $Menu1`n";
-            Create-OU;
-        }
+          {
+              Write-Host "`nYou have selected $Menu1`n";
+              Create-OU;
+          }
+
         2
-        {
-            Write-Host "`nYou have selected $Menu2`n";
-            Create-User;
-        }
+          {
+              Write-Host "`nYou have selected $Menu2`n";
+              Create-User;
+          }
+
         3
-        {
-            Write-Host "`nYou have selected $Menu3`n";
-            Bulk-UserCreate;
-        }
+          {
+              Write-Host "`nYou have selected $Menu3`n";
+              Bulk-UserCreate;
+          }
+
         default {"The choice could not be determined."}
     }
 
-    sleep(5)
+sleep(5)
