@@ -22,11 +22,12 @@ function Create-User()
     $Username = Read-Host -Prompt '> full user ';
     $Givenname = Read-Host -Prompt '> given name ';
     $Surname = Read-Host -Prompt '> surname ';
-    $Displayname = Read-Host -Prompt '> display name ';
-    $SAMname = Read-Host -Prompt '> display name ';
-    $UserpathOU = Read-Host -Prompt '> OU ';
-    $UserpathOUstr = 'ou=$($UserpathOU),dc=POLIFORMADL,dc=local'
-    New-ADUser -name $Username -GivenName $Givenname -SurName $Surname -DisplayName $Displayname -Path $UserpathOUstr -SamAccountName $SAMname;
+    #$Displayname = Read-Host -Prompt '> display name ';
+    $SAMname = Read-Host -Prompt '> SAM account name ';
+    #$UserpathOU = Read-Host -Prompt '> OU ';
+    $UPN = "$($SAMname)@POLIFORMADL.com"
+    #$UserpathOUstr = "ou=$($UserpathOU),dc=POLIFORMADL,dc=local"
+    New-ADUser -name "$($Username)" -GivenName "$($Givenname)" -SurName "$($Surname)" -SamAccountName "$($SAMname)" -UserPrincipalName "$($UPN)" -AccountPassword (ConvertTo-SecureString -AsPlainText "Password123" -Force) -PassThru | Enable-ADAccount;
     ($Error[0]).InvocationInfo.Line
 }
 
@@ -40,8 +41,8 @@ function Bulk-UserCreate()
 
       Write-Host 'Displaying list of Users'
       Write-Host "Building DistinguishedName based on department(s)`n"
-      Write-Host "Account`tDistinguishedName"
-      Write-Host "-------`t-----------------"
+      Write-Host "Account      `tDistinguishedName"
+      Write-Host "-------      `t-----------------"
 
   #loop through all users
   foreach ($User in $Users)
@@ -87,11 +88,11 @@ function Bulk-UserCreate()
 
       $DistinguishedName = "$($DistinguishedName)DC=POLIFORMA,DC=COM,"
 
-      Write-Host $UserAccount"`t"$DistinguishedName
-      #New-ADUser -Name "$Displayname" -DisplayName "$Displayname" -SamAccountName $SAM `
-      #          -UserPrincipalName $UPN -GivenName "$UserFirstname" -Surname "$UserLastname" `
-      #          -AccountPassword (ConvertTo-SecureString "$UserAccount" -AsPlainText -Force) -Enabled $true `
-      #          -ChangePasswordAtLogon $false –PasswordNeverExpires $true -server DLSV1 -whatif
+      Write-Host $UserAccount"      `t"$DistinguishedName
+      New-ADUser -Name "$Displayname" -DisplayName "$Displayname" -SamAccountName $SAM `
+                -UserPrincipalName $UPN -GivenName "$UserFirstname" -Surname "$UserLastname" `
+                -AccountPassword (ConvertTo-SecureString "$UserAccount" -AsPlainText -Force) -Enabled $true `
+               -ChangePasswordAtLogon $false –PasswordNeverExpires $true -server DLSV1 -whatif
 
   }
 
