@@ -1,4 +1,4 @@
-Naam;Voornaam;Account;Manager;IT;Boekhouding;Logistiek;ImportExport
+Naam;Voornaam;Account;Directie;Administratie;Automatisering;Productie;Staf
 Hasselbanks;Robert;RobertH;X;;;;
 Pasteels;Luc;LucP;X;X;;;
 De Wisser;Jeroen;JeroenD;;X;;;
@@ -15,3 +15,4 @@ Drets;Michel;MichelD;X;;;;X
 Loosveld;Frankie;FrankieL;;;;;X
 Pallemans;Guido;GuidoP;;;;;X
 Vandam;Alain;AlainV;;;;;X
+Cordemans;Tom;TomC;;;;;X

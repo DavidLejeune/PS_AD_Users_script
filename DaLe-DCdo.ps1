@@ -5,6 +5,7 @@
 $Menu1 = "Create new OU";
 $Menu2 = "New User"
 $Menu3 = "Bulk create User from CSV"
+$Menu4 = "Check User existence"
 
 
 #------------------------------------------------------------------------------
@@ -31,6 +32,13 @@ function Create-User()
     ($Error[0]).InvocationInfo.Line
 }
 
+function Check-UserExistence()
+{
+  $user = Read-Host -Prompt '> Enter SamAccountName ';
+  if (dsquery user -samid $user){"Found user"}
+  else {"Did not find user"}
+}
+
 function Bulk-UserCreate()
 {
   #main task
@@ -41,8 +49,8 @@ function Bulk-UserCreate()
 
       Write-Host 'Displaying list of Users'
       Write-Host "Building DistinguishedName based on department(s)`n"
-      Write-Host "Account      `tDistinguishedName"
-      Write-Host "-------      `t-----------------"
+      Write-Host "Account      `tSAM      `tExists?      `tDistinguishedName"
+      Write-Host "-------      `t---      `t-------   `t-----------------"
 
   #loop through all users
   foreach ($User in $Users)
@@ -52,47 +60,113 @@ function Bulk-UserCreate()
       $UserLastname = $User.Voornaam
       $UserAccount = $User.Account
       $SAM = $UserAccount
-      $UPN = $User.Firstname + "." + $User.Lastname + "@POLIFORMADL.COM"
+      $UPN = "$($SAM)@POLIFORMADL.com"
       $OU = ""
       $DistinguishedName = "CN=" + $Displayname + ","
 
       #find ou
-      $Manager = $User.Manager
-      $IT = $User.IT
-      $Boekhouding =  $User.Boekhouding
-      $Logistiek = $User.Logistiek
-      $ImportExport = $User.ImportExport
+      #$Manager = $User.Manager
+      #$IT = $User.IT
+      #$Boekhouding =  $User.Boekhouding
+      #$Logistiek = $User.Logistiek
+      #$ImportExport = $User.ImportExport
+
+      $Manager = $User.Directie
+      $IT = $User.Administratie
+      $Boekhouding =  $User.Automatisering
+      $Logistiek = $User.Productie
+      $ImportExport = $User.Staf
 
       #CN=Floris Flipse,OU=FabricageBudel,OU=Productie,OU=PFAfdelingen,DC=POLIFORMADL,DC=COM
 
       if ($ImportExport -eq "X")
       {
-        $DistinguishedName = "$($DistinguishedName)OU=ImportExport,"
+        $DistinguishedName = "$($DistinguishedName)OU=Staf,"
       }
       if ($Logistiek -eq "X")
       {
-        $DistinguishedName = "$($DistinguishedName)OU=Logistiek,"
+        $DistinguishedName = "$($DistinguishedName)OU=Productie,"
       }
       if ($Boekhouding -eq "X")
       {
-        $DistinguishedName = "$($DistinguishedName)OU=Boekhouding,"
+        $DistinguishedName = "$($DistinguishedName)OU=Automatisering,"
       }
       if ($IT -eq "X")
       {
-        $DistinguishedName = "$($DistinguishedName)OU=IT,"
+        $DistinguishedName = "$($DistinguishedName)OU=Administratie,"
       }
       if ($Manager -eq "X")
       {
-        $DistinguishedName = "$($DistinguishedName)OU=Manager,"
+        $DistinguishedName = "$($DistinguishedName)OU=Directie,"
+      }
+#------------------------------
+#if ($ImportExport -eq "X")
+#{
+#  $DistinguishedName = "$($DistinguishedName)OU=ImportExport,"
+#}
+#if ($Logistiek -eq "X")
+#{
+#  $DistinguishedName = "$($DistinguishedName)OU=Logistiek,"
+#}
+#if ($Boekhouding -eq "X")
+#{
+#  $DistinguishedName = "$($DistinguishedName)OU=Boekhouding,"
+#}
+#if ($IT -eq "X")
+#{
+#  $DistinguishedName = "$($DistinguishedName)OU=IT,"
+#}
+#if ($Manager -eq "X")
+#{
+#  $DistinguishedName = "$($DistinguishedName)OU=Manager,"
+#}
+
+
+
+
+
+
+
+      $DistinguishedName = "$($DistinguishedName)OU=PFAfdelingen,DC=POLIFORMA,DC=COM,"
+
+
+
+
+
+      #New-ADUser -name "$($Displayname)" -GivenName "$($UserFirstname)" -SurName "$($UserLastname)" -SamAccountName "$($SAM)" -UserPrincipalName "$($UPN)" -AccountPassword (ConvertTo-SecureString -AsPlainText "Password123" -Force) -PassThru | Enable-ADAccount;
+
+      $Result = ""
+      if (dsquery user -samid $SAM)
+      {
+        $Result = "User Found"
+        Write-Host $UserAccount"      `t"$SAM"      `t"$Result"`t"$DistinguishedName
+
+
+
+      }
+      else
+      {
+        $Result = "User not found"
+        Write-Host $UserAccount"      `t"$SAM"      `t"$Result"`t"$DistinguishedName
+
+        New-ADUser -name "$($Displayname)" -GivenName "$($UserFirstname)" -SurName "$($UserLastname)" -SamAccountName "$($SAM)" -UserPrincipalName "$($UPN)" -AccountPassword (ConvertTo-SecureString -AsPlainText "Password123" -Force) -PassThru | Enable-ADAccount ;
+
+        #Check after creation if user exists now
+        if (dsquery user -samid $SAM)
+        {
+          Write-Host "User succesfully created"
+        }
+        else
+        {
+          Write-Host "Unsuccesfull in creating user"
+        }
+
       }
 
-      $DistinguishedName = "$($DistinguishedName)DC=POLIFORMA,DC=COM,"
-
-      Write-Host $UserAccount"      `t"$DistinguishedName
-      New-ADUser -Name "$Displayname" -DisplayName "$Displayname" -SamAccountName $SAM `
-                -UserPrincipalName $UPN -GivenName "$UserFirstname" -Surname "$UserLastname" `
-                -AccountPassword (ConvertTo-SecureString "$UserAccount" -AsPlainText -Force) -Enabled $true `
-               -ChangePasswordAtLogon $false –PasswordNeverExpires $true -server DLSV1 -whatif
+      #New-ADUser -Name "$Displayname" -DisplayName "$Displayname" -SamAccountName $SAM `
+      #          -UserPrincipalName $UPN -GivenName "$UserFirstname" -Surname "$UserLastname" `
+      #          -AccountPassword (ConvertTo-SecureString "$UserAccount" -AsPlainText -Force) -Enabled $true `
+      #         -ChangePasswordAtLogon $false –PasswordNeverExpires $true -server DLSV1 -whatif
 
   }
 
@@ -126,6 +200,7 @@ function Show-Header()
     Write-Host '    1. '$Menu1;
     Write-Host '    2. '$Menu2;
     Write-Host '    3. '$Menu3;
+    Write-Host '    4. '$Menu4;
     Write-Host "";
 }
 
@@ -158,7 +233,11 @@ switch ($Menu)
               Bulk-UserCreate;
           }
 
+        4
+          {
+              Write-Host "`nYou have selected $Menu4`n";
+              Check-UserExistence;
+          }
+
         default {"The choice could not be determined."}
     }
-
-sleep(5)

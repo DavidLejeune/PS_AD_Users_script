@@ -1,0 +1,4 @@
+Set-ADUser -ChangePasswordAtLogon:$true -Identity:"CN=test test.,OU=Administratie,OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Server:"DLSV1.POLIFORMADL.COM" -SmartcardLogonRequired:$false
+
+
+Set-ADUser -Identity:"CN=Cordemans Tom,OU=Staf,OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Server:"DLSV1.POLIFORMADL.COM" -SmartcardLogonRequired:$false
