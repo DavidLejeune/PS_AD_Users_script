@@ -2,6 +2,7 @@
 
 #------------------------------------------------------------------------------
 #Script Variables
+$Menu = ""
 $Menu1 = "Create new OU";
 $Menu2 = "New User"
 $Menu3 = "Bulk create User from CSV"
@@ -135,6 +136,8 @@ function Bulk-UserCreate()
 
       #New-ADUser -name "$($Displayname)" -GivenName "$($UserFirstname)" -SurName "$($UserLastname)" -SamAccountName "$($SAM)" -UserPrincipalName "$($UPN)" -AccountPassword (ConvertTo-SecureString -AsPlainText "Password123" -Force) -PassThru | Enable-ADAccount;
 
+      Write-Host $Menu
+
       $Result = ""
       if (dsquery user -samid $SAM)
       {
@@ -149,7 +152,7 @@ function Bulk-UserCreate()
         $Result = "User not found"
         Write-Host $UserAccount"      `t"$SAM"      `t"$Result"`t"$DistinguishedName
 
-        New-ADUser -name "$($Displayname)" -GivenName "$($UserFirstname)" -SurName "$($UserLastname)" -SamAccountName "$($SAM)" -UserPrincipalName "$($UPN)" -AccountPassword (ConvertTo-SecureString -AsPlainText "Password123" -Force) -PassThru | Enable-ADAccount ;
+        #New-ADUser -name "$($Displayname)" -GivenName "$($UserFirstname)" -SurName "$($UserLastname)" -SamAccountName "$($SAM)" -UserPrincipalName "$($UPN)" -AccountPassword (ConvertTo-SecureString -AsPlainText "Password123" -Force) -PassThru | Enable-ADAccount ;
 
         #Check after creation if user exists now
         if (dsquery user -samid $SAM)
@@ -162,6 +165,8 @@ function Bulk-UserCreate()
         }
 
       }
+
+      #remove-aduser -identity $SAM
 
       #New-ADUser -Name "$Displayname" -DisplayName "$Displayname" -SamAccountName $SAM `
       #          -UserPrincipalName $UPN -GivenName "$UserFirstname" -Surname "$UserLastname" `
@@ -218,24 +223,28 @@ switch ($Menu)
         1
           {
               Write-Host "`nYou have selected $Menu1`n";
+              $Menu = $Menu1;
               Create-OU;
           }
 
         2
           {
               Write-Host "`nYou have selected $Menu2`n";
+              $Menu = $Menu2;
               Create-User;
           }
 
         3
           {
               Write-Host "`nYou have selected $Menu3`n";
+              $Menu = $Menu3;
               Bulk-UserCreate;
           }
 
         4
           {
               Write-Host "`nYou have selected $Menu4`n";
+              $Menu = $Menu4;
               Check-UserExistence;
           }
 
