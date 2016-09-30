@@ -7,6 +7,7 @@ $Menu1 = "Create new OU";
 $Menu2 = "New User"
 $Menu3 = "Bulk create User from CSV"
 $Menu4 = "Check User existence"
+$Menu5 = "Bulk delete User from CSV"
 
 
 #------------------------------------------------------------------------------
@@ -40,7 +41,7 @@ function Check-UserExistence()
   else {"Did not find user"}
 }
 
-function Bulk-UserCreate()
+function Bulk-UserManage()
 {
   #main task
   #create users based on csv date
@@ -134,34 +135,70 @@ function Bulk-UserCreate()
 
 
 
-      #New-ADUser -name "$($Displayname)" -GivenName "$($UserFirstname)" -SurName "$($UserLastname)" -SamAccountName "$($SAM)" -UserPrincipalName "$($UPN)" -AccountPassword (ConvertTo-SecureString -AsPlainText "Password123" -Force) -PassThru | Enable-ADAccount;
 
-      Write-Host $Menu
-
-      $Result = ""
-      if (dsquery user -samid $SAM)
+      if ($Menu = "Bulk delete User from CSV")
       {
-        $Result = "User Found"
-        Write-Host $UserAccount"      `t"$SAM"      `t"$Result"`t"$DistinguishedName
-
-
-
-      }
-      else
-      {
-        $Result = "User not found"
-        Write-Host $UserAccount"      `t"$SAM"      `t"$Result"`t"$DistinguishedName
-
-        #New-ADUser -name "$($Displayname)" -GivenName "$($UserFirstname)" -SurName "$($UserLastname)" -SamAccountName "$($SAM)" -UserPrincipalName "$($UPN)" -AccountPassword (ConvertTo-SecureString -AsPlainText "Password123" -Force) -PassThru | Enable-ADAccount ;
-
-        #Check after creation if user exists now
+        $Result = ""
         if (dsquery user -samid $SAM)
         {
-          Write-Host "User succesfully created"
+          $Result = "User Found"
+          Write-Host $UserAccount"      `t"$SAM"      `t"$Result"`t"$DistinguishedName
+
+          #Check after deletion if user exists now
+          if (dsquery user -samid $SAM)
+          {
+            Write-Host "User succesfully created"
+          }
+          else
+          {
+            Write-Host "Unsuccesfull in creating user"
+          }
+
         }
         else
         {
-          Write-Host "Unsuccesfull in creating user"
+          $Result = "User not found"
+          Write-Host $UserAccount"      `t"$SAM"      `t"$Result"`t"$DistinguishedName
+
+          #create the user and assign to OU
+          New-ADUser -name "$($Displayname)" -GivenName "$($UserFirstname)" -SurName "$($UserLastname)" -SamAccountName "$($SAM)" -UserPrincipalName "$($UPN)" -AccountPassword (ConvertTo-SecureString -AsPlainText "Password123" -Force) -PassThru | Enable-ADAccount ;
+
+
+
+        }
+      }
+
+
+
+      if ($Menu = "Bulk create User from CSV")
+      {
+        $Result = ""
+        if (dsquery user -samid $SAM)
+        {
+          $Result = "User Found"
+          Write-Host $UserAccount"      `t"$SAM"      `t"$Result"`t"$DistinguishedName
+
+
+
+        }
+        else
+        {
+          $Result = "User not found"
+          Write-Host $UserAccount"      `t"$SAM"      `t"$Result"`t"$DistinguishedName
+
+          #create the user and assign to OU
+          New-ADUser -name "$($Displayname)" -GivenName "$($UserFirstname)" -SurName "$($UserLastname)" -SamAccountName "$($SAM)" -UserPrincipalName "$($UPN)" -AccountPassword (ConvertTo-SecureString -AsPlainText "Password123" -Force) -PassThru | Enable-ADAccount ;
+
+          #Check after creation if user exists now
+          if (dsquery user -samid $SAM)
+          {
+            Write-Host "User succesfully created"
+          }
+          else
+          {
+            Write-Host "Unsuccesfull in creating user"
+          }
+
         }
 
       }
@@ -197,7 +234,7 @@ function Show-Header()
     Write-Host "  >> Created : 27/09/2016"
     Write-Host ''
     Write-Host ' #####################################'
-    Write-Host ' #     ACTIVE DIRECTORY MANAGENT     #'
+    Write-Host ' #    ACTIVE DIRECTORY MANAGEMENT    #'
     Write-Host ' #####################################'
     Write-Host ''
     Write-Host " Menu :";
@@ -206,6 +243,7 @@ function Show-Header()
     Write-Host '    2. '$Menu2;
     Write-Host '    3. '$Menu3;
     Write-Host '    4. '$Menu4;
+    Write-Host '    5. '$Menu5;
     Write-Host "";
 }
 
@@ -238,7 +276,7 @@ switch ($Menu)
           {
               Write-Host "`nYou have selected $Menu3`n";
               $Menu = $Menu3;
-              Bulk-UserCreate;
+              Bulk-UserManage;
           }
 
         4
@@ -246,6 +284,12 @@ switch ($Menu)
               Write-Host "`nYou have selected $Menu4`n";
               $Menu = $Menu4;
               Check-UserExistence;
+          }
+        5
+          {
+              Write-Host "`nYou have selected $Menu5`n";
+              $Menu = $Menu5;
+              Bulk-UserManage;
           }
 
         default {"The choice could not be determined."}
