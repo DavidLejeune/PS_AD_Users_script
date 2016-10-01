@@ -22,16 +22,15 @@ function Create-OU()
 function Create-User()
 {
     #Create user based on user inpu (input ok, ad action fail)
-    $Username = Read-Host -Prompt '> full user ';
     $Givenname = Read-Host -Prompt '> given name ';
     $Surname = Read-Host -Prompt '> surname ';
-    #$Displayname = Read-Host -Prompt '> display name ';
+    $Displayname = $Givenname + " " + $Surname;
     $SAMname = Read-Host -Prompt '> SAM account name ';
-    #$UserpathOU = Read-Host -Prompt '> OU ';
+    $UserpathOU = Read-Host -Prompt '> OU ';
     $UPN = "$($SAMname)@POLIFORMADL.com"
-    #$UserpathOUstr = "ou=$($UserpathOU),dc=POLIFORMADL,dc=local"
-    New-ADUser -name "$($Username)" -GivenName "$($Givenname)" -SurName "$($Surname)" -SamAccountName "$($SAMname)" -UserPrincipalName "$($UPN)" -AccountPassword (ConvertTo-SecureString -AsPlainText "Password123" -Force) -PassThru | Enable-ADAccount;
-    ($Error[0]).InvocationInfo.Line
+    $pathOU = "ou=$($UserpathOU),ou=PFAfdelinen,dc=POLIFORMADL,dc=COM"
+    New-ADUser -name "$($Displayname)" -GivenName "$($UserFirstname)" -SurName "$($UserLastname)" -SamAccountName "$($SAM)" -UserPrincipalName "$($UPN)" -AccountPassword (ConvertTo-SecureString -AsPlainText "Password123" -Force) -Path $pathOU -PassThru | Enable-ADAccount ;
+
 }
 
 function Check-UserExistence()
@@ -138,8 +137,8 @@ function Bulk-UserDelete()
         if (dsquery user -samid $SAM)
         {
           $Result = "User Found"
-          Write-Host $UserAccount"      `t"$SAM"      `t"$Result"`t"$DistinguishedName
-          remove-aduser -identity $SAM
+          Write-Host $UserAccount"      `t"$SAM"      `t"$Result
+          remove-aduser -identity $SAM -confirm:$false
 
           #Check after deletion if user exists now
           if (dsquery user -samid $SAM)
@@ -195,7 +194,7 @@ function Bulk-UserCreate()
       $SAM = $UserAccount
       $UPN = "$($SAM)@POLIFORMADL.com"
       $OU = ""
-      $DistinguishedName = "CN=" + $Displayname + ","
+      $DistinguishedName = ""
 
       #find ou
       #$Manager = $User.Manager
@@ -256,7 +255,7 @@ function Bulk-UserCreate()
 
 
 
-      $DistinguishedName = "$($DistinguishedName)OU=PFAfdelingen,DC=POLIFORMA,DC=COM,"
+        $DistinguishedName = "$($DistinguishedName)OU=PFAfdelingen,DC=POLIFORMA,DC=COM,"
 
 
 
@@ -275,7 +274,7 @@ function Bulk-UserCreate()
           Write-Host $UserAccount"      `t"$SAM"      `t"$Result"`t"$DistinguishedName
 
           #create the user and assign to OU
-          New-ADUser -name "$($Displayname)" -GivenName "$($UserFirstname)" -SurName "$($UserLastname)" -SamAccountName "$($SAM)" -UserPrincipalName "$($UPN)" -AccountPassword (ConvertTo-SecureString -AsPlainText "Password123" -Force) -PassThru | Enable-ADAccount ;
+          New-ADUser -name "$($Displayname)" -GivenName "$($UserFirstname)" -SurName "$($UserLastname)" -SamAccountName "$($SAM)" -UserPrincipalName "$($UPN)" -AccountPassword (ConvertTo-SecureString -AsPlainText "Password123" -Force)  -PassThru | Enable-ADAccount ;
 
           #Check after creation if user exists now
           if (dsquery user -samid $SAM)
@@ -286,13 +285,8 @@ function Bulk-UserCreate()
           {
             Write-Host "Unsuccesfull in creating user"
           }
-
         }
-
-
-
   }
-
   Write-Host ""
   Write-Host "Finished reading csv file"
 }
