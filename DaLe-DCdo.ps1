@@ -61,8 +61,8 @@ function Bulk-UserDelete()
 
       Write-Host 'Displaying list of Users'
       Write-Host "Building DistinguishedName based on department(s)`n"
-      Write-Host "Account      `tSAM      `tExists?      `tDistinguishedName"
-      Write-Host "-------      `t---      `t-------   `t-----------------"
+      Write-Host "Account      `tSAM      `tExists?     `t`Path"
+      Write-Host "-------      `t---      `t-------     `t----"
 
   #loop through all users
   foreach ($User in $Users)
@@ -161,11 +161,11 @@ function Bulk-UserDelete()
           #Check after deletion if user exists now
           if (dsquery user -samid $SAM)
           {
-            Write-Host "Unsuccesfull in deleting user"
+            Write-Host "Unsuccesfull in deleting user $($Displayname)"
           }
           else
           {
-            Write-Host "User succesfully deleted"
+            Write-Host "User $($Displayname) succesfully deleted"
           }
 
         }
@@ -194,8 +194,8 @@ function Bulk-UserCreate()
 
       Write-Host 'Displaying list of Users'
       Write-Host "Building DistinguishedName based on department(s)`n"
-      Write-Host "Account      `tSAM      `tExists?      `tDistinguishedName"
-      Write-Host "-------      `t---      `t-------   `t-----------------"
+      Write-Host "Account      `tSAM      `tExists?      `tPath"
+      Write-Host "-------      `t---      `t-------   `t----"
 
   #loop through all users
   foreach ($User in $Users)
@@ -301,11 +301,11 @@ function Bulk-UserCreate()
           #Check after creation if user exists now
           if (dsquery user -samid $SAM)
           {
-            Write-Host "User succesfully created"
+            Write-Host "User $($Displayname) succesfully created"
           }
           else
           {
-            Write-Host "Unsuccesfull in creating user"
+            Write-Host "Unsuccesfull in creating user $($Displayname)"
           }
         }
   }
