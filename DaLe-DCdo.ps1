@@ -17,13 +17,19 @@ $Menu5 = "Bulk delete User from CSV"
 #Functions
 function Create-OU()
 {
+    $sw = [Diagnostics.Stopwatch]::StartNew()
     #create top level OU (needs to worked out further for depth)
     $OUname = Read-Host -Prompt '> OU name ';
     New-ADOrganizationalUnit $OUname ;
+    $sw.Stop()
+    $time_elapsed = $sw.Elapsed.TotalSeconds
+    Write-Host "Task complete in "$time_elapsed" seconds."
+    Log-Action
 }
 
 function Create-User()
 {
+    $sw = [Diagnostics.Stopwatch]::StartNew()
     #Create user based on user input
     $UserFirstname = Read-Host -Prompt '> given name ';
     $UserLastname = Read-Host -Prompt '> surname ';
@@ -34,14 +40,22 @@ function Create-User()
     $pathOU = "ou=$($UserpathOU),ou=PFAfdelinen,dc=POLIFORMADL,dc=COM"
 
     New-ADUser -Department:"$($UserpathOU)" -DisplayName:"$($Displayname)" -GivenName:"$($UserFirstname)" -Name:"$($Displayname)" -Path:"OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -SamAccountName:"$($SAM)" -Server:"DLSV1.POLIFORMADL.COM" -Surname:"$($UserLastname)" -Type:"user" -UserPrincipalName:"$($SAM)@POLIFORMADL.COM" -AccountPassword (ConvertTo-SecureString "Password123" -AsPlainText -Force) -Enabled $true
-
+    $sw.Stop()
+    $time_elapsed = $sw.Elapsed.TotalSeconds
+    Write-Host "Task complete in "$time_elapsed" seconds."
+    Log-Action
 }
 
 function Check-UserExistence()
 {
+  $sw = [Diagnostics.Stopwatch]::StartNew()
   $user = Read-Host -Prompt '> Enter SamAccountName ';
   if (dsquery user -samid $user){"Found user"}
   else {"Did not find user"}
+  $sw.Stop()
+  $time_elapsed = $sw.Elapsed.TotalSeconds
+  Write-Host "Task complete in "$time_elapsed" seconds."
+  Log-Action
 }
 
 function Bulk-UserDelete()

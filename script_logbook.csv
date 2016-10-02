@@ -2,3 +2,6 @@ Date,UserID,Action,Runtime
 2/10/2016 15:10:08,Administrator,Bulk create User from CSV,4,7393073,
 2/10/2016 15:10:55,Administrator,Bulk create User from CSV,4.7999438,
 2/10/2016 15:12:37,Administrator,Bulk delete User from CSV,8.9964253,
+2/10/2016 15:15:07,Administrator,Check User existence,,
+2/10/2016 15:17:09,Administrator,Bulk delete User from CSV,4.2110834,
+2/10/2016 15:17:19,Administrator,Check User existence,4.5727365,
