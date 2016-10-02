@@ -459,7 +459,7 @@ switch ($Menu)
         7
           {
               Write-Host "`nYou have selected $(($Menu7).ToUpper())`n";
-              $Menu = $Menu=7;
+              $Menu = $Menu7;
               Delete-User;
           }
 
