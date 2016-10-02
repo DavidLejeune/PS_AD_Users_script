@@ -23,7 +23,7 @@ function Create-OU()
     New-ADOrganizationalUnit $OUname ;
     $sw.Stop()
     $time_elapsed = $sw.Elapsed.TotalSeconds
-    Write-Host "Task complete in "$time_elapsed" seconds."
+    Write-Host "Task completed in "$time_elapsed" seconds."
     Log-Action
 }
 
@@ -42,7 +42,7 @@ function Create-User()
     New-ADUser -Department:"$($UserpathOU)" -DisplayName:"$($Displayname)" -GivenName:"$($UserFirstname)" -Name:"$($Displayname)" -Path:"OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -SamAccountName:"$($SAM)" -Server:"DLSV1.POLIFORMADL.COM" -Surname:"$($UserLastname)" -Type:"user" -UserPrincipalName:"$($SAM)@POLIFORMADL.COM" -AccountPassword (ConvertTo-SecureString "Password123" -AsPlainText -Force) -Enabled $true
     $sw.Stop()
     $time_elapsed = $sw.Elapsed.TotalSeconds
-    Write-Host "Task complete in "$time_elapsed" seconds."
+    Write-Host "Task completed in "$time_elapsed" seconds."
     Log-Action
 }
 
@@ -54,7 +54,7 @@ function Check-UserExistence()
   else {"Did not find user"}
   $sw.Stop()
   $time_elapsed = $sw.Elapsed.TotalSeconds
-  Write-Host "Task complete in "$time_elapsed" seconds."
+  Write-Host "Task completed in "$time_elapsed" seconds."
   Log-Action
 }
 
@@ -65,7 +65,7 @@ function Bulk-UserDelete()
   $Users = Import-Csv -Delimiter ";" -Path "personeel.csv"
   #header of table
   Write-Host "Get ready for the magic ...`n"
-  Write-Host "Account      `tSAM      `tExists?     `t`t`Result"
+  Write-Host "Account      `tSAM      `tExists?     `t`t`Action"
   Write-Host "-------      `t---      `t-------     `t`t------"
 
   #loop through all users
@@ -188,7 +188,7 @@ function Bulk-UserDelete()
   Write-Host "Finished reading csv file"
   $sw.Stop()
   $time_elapsed = $sw.Elapsed.TotalSeconds
-  Write-Host "Task complete in "$time_elapsed" seconds."
+  Write-Host "Task completed in "$time_elapsed" seconds."
   Log-Action
 }
 
@@ -203,7 +203,7 @@ function Bulk-UserCreate()
 
       Write-Host "Building Path name based on department(s)`n"
       Write-Host "Get ready for the magic ...`n"
-      Write-Host "Account      `tSAM      `tExists?      `t`tResult"
+      Write-Host "Account      `tSAM      `tExists?      `t`tAction"
       Write-Host "-------      `t---      `t-------   `t`t------"
 
   #loop through all users
@@ -317,7 +317,7 @@ function Bulk-UserCreate()
   Write-Host "Finished reading csv file"
   $sw.Stop()
   $time_elapsed = $sw.Elapsed.TotalSeconds
-  Write-Host "Task complete in "$time_elapsed" seconds."
+  Write-Host "Task completed in "$time_elapsed" seconds."
   Log-Action
 }
 
