@@ -5,6 +5,9 @@ Import-Module ActiveDirectory
 
 #------------------------------------------------------------------------------
 #Script Variables
+$DC1 = "POLIFORMADL"
+$DC2 = "COM"
+
 $Menu = ""
 $Menu1 = "Create new OU";
 $Menu2 = "New User"
@@ -19,19 +22,14 @@ $Menu7 = "Delete a user"
 #Functions
 function Create-OU()
 {
-    $sw = [Diagnostics.Stopwatch]::StartNew()
     #create top level OU (needs to worked out further for depth)
     $OUname = Read-Host -Prompt '> OU name ';
     New-ADOrganizationalUnit $OUname ;
-    $sw.Stop()
-    $time_elapsed = $sw.Elapsed.TotalSeconds
-    Write-Host "Task completed in "$time_elapsed" seconds."
-    Log-Action
+
 }
 
 function Create-User()
 {
-    $sw = [Diagnostics.Stopwatch]::StartNew()
     #Create user based on user input
     $UserFirstname = Read-Host -Prompt '> given name ';
     $UserLastname = Read-Host -Prompt '> surname ';
@@ -42,15 +40,14 @@ function Create-User()
     $pathOU = "ou=$($UserpathOU),ou=PFAfdelinen,dc=POLIFORMADL,dc=COM"
 
     New-ADUser -Department:"$($UserpathOU)" -DisplayName:"$($Displayname)" -GivenName:"$($UserFirstname)" -Name:"$($Displayname)" -Path:"OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -SamAccountName:"$($SAM)" -Server:"DLSV1.POLIFORMADL.COM" -Surname:"$($UserLastname)" -Type:"user" -UserPrincipalName:"$($SAM)@POLIFORMADL.COM" -AccountPassword (ConvertTo-SecureString "Password123" -AsPlainText -Force) -Enabled $true
-    $sw.Stop()
-    $time_elapsed = $sw.Elapsed.TotalSeconds
-    Write-Host "Task completed in "$time_elapsed" seconds."
-    Log-Action
+
 }
 
 function Delete-User()
 {
-    $sw = [Diagnostics.Stopwatch]::StartNew()
+
+
+    Show-Users
     #Delete user based on user input
     $SAM = Read-Host -Prompt '> SAM account name ';
 
@@ -59,6 +56,8 @@ function Delete-User()
     {
       "Found user"
       remove-aduser -identity $SAM #-confirm:$false
+
+      Show-Users
       if (dsquery user -samid $SAM){"User unsuccesfully deleted"}
       else {"User succesfully deleted"}
     }
@@ -67,14 +66,6 @@ function Delete-User()
       "Did not find user"
     }
 
-
-
-
-
-    $sw.Stop()
-    $time_elapsed = $sw.Elapsed.TotalSeconds
-    Write-Host "Task completed in "$time_elapsed" seconds."
-    Log-Action
 }
 
 function Show-Users()
@@ -83,10 +74,6 @@ function Show-Users()
     #log users and show them
     Get-ADUser -SearchBase "OU=PFAfdelingen,dc=POLIFORMADL,dc=COM" -Filter * -properties * -ResultSetSize 5000 | select CN ,SAMAccountName, Department, Description , Title,UserPrincipalName, DistinguishedName, HomeDirectory, ProfilePath, Office, OfficePhone, Manager    | convertto-html | out-file ADUsers.html
     Get-ADUser -SearchBase "dc=POLIFORMADL,dc=COM" -Filter * -properties * -ResultSetSize 5000 | select DistinguishedName,SAMAccountName, Department | format-table -autosize
-    $sw.Stop()
-    $time_elapsed = $sw.Elapsed.TotalSeconds
-    Write-Host "Task completed in "$time_elapsed" seconds."
-    Log-Action
 }
 
 function Check-UserExistence()
@@ -95,10 +82,6 @@ function Check-UserExistence()
     $SAM = Read-Host -Prompt '> Enter SamAccountName ';
     if (dsquery user -samid $SAM){"Found user"}
     else {"Did not find user"}
-    $sw.Stop()
-    $time_elapsed = $sw.Elapsed.TotalSeconds
-    Write-Host "Task completed in "$time_elapsed" seconds."
-    Log-Action
 }
 
 function Bulk-UserDelete()
@@ -235,10 +218,6 @@ function Bulk-UserDelete()
 
   Write-Host ""
   Write-Host "Finished reading csv file"
-  $sw.Stop()
-  $time_elapsed = $sw.Elapsed.TotalSeconds
-  Write-Host "Task completed in "$time_elapsed" seconds."
-  Log-Action
 }
 
 function Bulk-UserCreate()
@@ -367,10 +346,6 @@ function Bulk-UserCreate()
   }
   Write-Host ""
   Write-Host "Finished reading csv file"
-  $sw.Stop()
-  $time_elapsed = $sw.Elapsed.TotalSeconds
-  Write-Host "Task completed in "$time_elapsed" seconds."
-  Log-Action
 }
 
 function Log-Action()
@@ -423,6 +398,7 @@ Show-Header;
 
 #Select action
 $Menu = Read-Host -Prompt 'Select an option ';
+$sw = [Diagnostics.Stopwatch]::StartNew()
 switch ($Menu)
     {
         1
@@ -473,3 +449,9 @@ switch ($Menu)
 
         default {"The choice could not be determined."}
     }
+
+
+    $sw.Stop()
+    $time_elapsed = $sw.Elapsed.TotalSeconds
+    Write-Host "Task completed in "$time_elapsed" seconds."
+    Log-Action
