@@ -12,6 +12,7 @@ $Menu3 = "Bulk create User from CSV"
 $Menu4 = "Check User existence"
 $Menu5 = "Bulk delete User from CSV"
 $Menu6 = "Show all users"
+$Menu7 = "Delete a user"
 
 
 #------------------------------------------------------------------------------
@@ -47,12 +48,25 @@ function Create-User()
     Log-Action
 }
 
+function Delete-User()
+{
+    $sw = [Diagnostics.Stopwatch]::StartNew()
+    #Delete user based on user input
+    $SAM = Read-Host -Prompt '> SAM account name ';
+    remove-aduser -identity $SAM #-confirm:$false
+    $sw.Stop()
+    $time_elapsed = $sw.Elapsed.TotalSeconds
+    Write-Host "Task completed in "$time_elapsed" seconds."
+    Log-Action
+}
+
 function Show-Users()
 {
     $sw = [Diagnostics.Stopwatch]::StartNew()
     #log users and show them
     Get-ADUser -SearchBase "OU=PFAfdelingen,dc=POLIFORMADL,dc=COM" -Filter * -properties * -ResultSetSize 5000 | select CN ,SAMAccountName, Department, Description , Title,UserPrincipalName, DistinguishedName, HomeDirectory, ProfilePath, Office, OfficePhone, Manager    | convertto-html | out-file C:\Users\Administrator\Desktop\ADUsers.html
-    Get-ADUser -SearchBase "OU=PFAfdelingen,dc=POLIFORMADL,dc=COM" -Filter * -properties * -ResultSetSize 5000 | select CN ,SAMAccountName, Department, Description , Title,UserPrincipalName, DistinguishedName, HomeDirectory, ProfilePath, Office, OfficePhone, Manager ,Path
+    #Get-ADUser -SearchBase "OU=PFAfdelingen,dc=POLIFORMADL,dc=COM" -Filter * -properties * -ResultSetSize 5000 | select CN ,SAMAccountName, Department, Description , Title,UserPrincipalName, DistinguishedName, HomeDirectory, ProfilePath, Office, OfficePhone, Manager ,Path
+    Get-ADUser -SearchBase "dc=POLIFORMADL,dc=COM" -Filter * -properties * -ResultSetSize 5000 | select DistinguishedName,SAMAccountName, Department | format-table -autosize
     $sw.Stop()
     $time_elapsed = $sw.Elapsed.TotalSeconds
     Write-Host "Task completed in "$time_elapsed" seconds."
@@ -371,6 +385,7 @@ function Show-Header()
     Write-Host '    4. '$Menu4;
     Write-Host '    5. '$Menu5;
     Write-Host '    6. '$Menu6;
+    Write-Host '    7. '$Menu7;
     Write-Host "";
 }
 
@@ -423,6 +438,12 @@ switch ($Menu)
               Write-Host "`nYou have selected $(($Menu6).ToUpper())`n";
               $Menu = $Menu6;
               Show-Users;
+          }
+        7
+          {
+              Write-Host "`nYou have selected $(($Menu7).ToUpper())`n";
+              $Menu = $Menu=7;
+              Delete-User;
           }
 
         default {"The choice could not be determined."}
