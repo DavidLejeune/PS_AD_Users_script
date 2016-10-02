@@ -22,15 +22,28 @@ function Create-OU()
 function Create-User()
 {
     #Create user based on user inpu (input ok, ad action fail)
-    $Givenname = Read-Host -Prompt '> given name ';
-    $Surname = Read-Host -Prompt '> surname ';
-    $Displayname = $Givenname + " " + $Surname;
-    $SAMname = Read-Host -Prompt '> SAM account name ';
+    $UserFirstname = Read-Host -Prompt '> given name ';
+    $UserLastname = Read-Host -Prompt '> surname ';
+    $Displayname = $UserFirstname + " " + $UserLastname;
+    $SAM = Read-Host -Prompt '> SAM account name ';
     $UserpathOU = Read-Host -Prompt '> OU ';
-    $UPN = "$($SAMname)@POLIFORMADL.com"
+    $UPN = "$($SAM)@POLIFORMADL.com"
     $pathOU = "ou=$($UserpathOU),ou=PFAfdelinen,dc=POLIFORMADL,dc=COM"
-    New-ADUser -name "$($Displayname)" -GivenName "$($UserFirstname)" -SurName "$($UserLastname)" -SamAccountName "$($SAM)" -UserPrincipalName "$($UPN)" -AccountPassword (ConvertTo-SecureString -AsPlainText "Password123" -Force) -Path $pathOU -PassThru | Enable-ADAccount ;
 
+    New-ADUser -Department:"$($UserpathOU)" -DisplayName:"$($Displayname)" -GivenName:"$($UserFirstname)" -Name:"$($Displayname)" -Path:"OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -SamAccountName:"$($SAM)" -Server:"DLSV1.POLIFORMADL.COM" -Surname:"$($UserLastname)" -Type:"user" -UserPrincipalName:"$($SAM)@POLIFORMADL.COM"
+
+    #New-ADUser -name "$($Displayname)" -GivenName "$($UserFirstname)" -SurName "$($UserLastname)" -SamAccountName "$($SAM)" -UserPrincipalName "$($UPN)" -AccountPassword (ConvertTo-SecureString "Password123" -AsPlainText -Force)  -PassThru | Enable-ADAccount ;
+
+    #PS I:\> New-ADUser -Name "david 1" -Surname "1" -GivenName "david" -SamAccountName "dav_1" -UserPrincipalName "dav_1@POLIFORMADL.COM
+    # (ConvertTo-SecureString "Password123" -AsPlainText -force) -Path 'OU=TestAfdeling,DC=POLIFORMA,DC=COM' -PassThru| Enable-ADAccount
+
+    #New-ADUser -name "$($Displayname)" -SamAccountName "$($SAM)" -UserPrincipalName "$($UPN)" -AccountPassword (ConvertTo-SecureString -AsPlainText "Password123" -Force) -PassThru | Enable-ADAccount ;
+    #Add-ADPrincipalGroupMembership -Identity:"CN=$($Displayname),CN=Users,DC=POLIFORMADL,DC=COM" -MemberOf:"CN=$($UserpathOU),OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Server:"DLSV1.POLIFORMADL.COM"
+    #Write-Host "'CN=$($Displayname),CN=Users,DC=POLIFORMADL,DC=COM'"
+    #Set-ADUser -DisplayName:"$($Displayname)" -GivenName:"$($UserFirstname)" -Identity:"CN=$($Displayname),CN=Users,DC=POLIFORMADL,DC=COM" -Server:"DLSV1.POLIFORMADL.COM"
+    #Rename-ADObject -Identity:"CN=$($Displayname),CN=Users,DC=POLIFORMADL,DC=COM" -NewName:"$($Displayname)" -Server:"DLSV1.POLIFORMADL.COM"
+
+#Initials:"$($UserLastname)"
 }
 
 function Check-UserExistence()
@@ -157,7 +170,7 @@ function Bulk-UserDelete()
           Write-Host $UserAccount"      `t"$SAM"      `t"$Result"`t"$DistinguishedName
 
           #create the user and assign to OU
-          New-ADUser -name "$($Displayname)" -GivenName "$($UserFirstname)" -SurName "$($UserLastname)" -SamAccountName "$($SAM)" -UserPrincipalName "$($UPN)" -AccountPassword (ConvertTo-SecureString -AsPlainText "Password123" -Force) -PassThru | Enable-ADAccount ;
+          #New-ADUser -name "$($Displayname)" -GivenName "$($UserFirstname)" -SurName "$($UserLastname)" -SamAccountName "$($SAM)" -UserPrincipalName "$($UPN)" -AccountPassword (ConvertTo-SecureString -AsPlainText "Password123" -Force) -PassThru | Enable-ADAccount ;
 
 
 

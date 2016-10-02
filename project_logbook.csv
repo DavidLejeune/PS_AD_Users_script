@@ -9,3 +9,5 @@ Date,UserID,LogDescription
 9/29/2016 10:16:35 AM,David,Succesfully created user from script (individual),
 9/29/2016 11:52:30 AM,David,Script om bulk create gelukt ,
 10/1/2016 1:13:09 PM,David,Create bulk create and delete (still problem with OU),
+2/10/2016 12:52:19,Administrator,Testing individual add to OU ; not able to reproduce last nights succes,
+10/2/2016 1:11:12 PM,David,succeeded in single user add to correct OU,

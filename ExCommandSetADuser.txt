@@ -2,3 +2,7 @@ Set-ADUser -ChangePasswordAtLogon:$true -Identity:"CN=test test.,OU=Administrati
 
 
 Set-ADUser -Identity:"CN=Cordemans Tom,OU=Staf,OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Server:"DLSV1.POLIFORMADL.COM" -SmartcardLogonRequired:$false
+
+
+PS I:\> New-ADUser "user 8" -givenname "user" -Surname "8" -SamAccountName "user8" -UserPrincipalName "user8@POLIFORMADL.COM" -AccountPassword (Conver
+tTo-SecureString "Password123" -AsPlainText -Force) -path 'ou=Staf,DC=POLIFORMADL,DC=COM' -PassThru | Enable-ADAccount
