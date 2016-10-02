@@ -30,7 +30,7 @@ function Create-User()
     $UPN = "$($SAM)@POLIFORMADL.com"
     $pathOU = "ou=$($UserpathOU),ou=PFAfdelinen,dc=POLIFORMADL,dc=COM"
 
-    New-ADUser -Department:"$($UserpathOU)" -DisplayName:"$($Displayname)" -GivenName:"$($UserFirstname)" -Name:"$($Displayname)" -Path:"OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -SamAccountName:"$($SAM)" -Server:"DLSV1.POLIFORMADL.COM" -Surname:"$($UserLastname)" -Type:"user" -UserPrincipalName:"$($SAM)@POLIFORMADL.COM"
+    New-ADUser -Department:"$($UserpathOU)" -DisplayName:"$($Displayname)" -GivenName:"$($UserFirstname)" -Name:"$($Displayname)" -Path:"OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -SamAccountName:"$($SAM)" -Server:"DLSV1.POLIFORMADL.COM" -Surname:"$($UserLastname)" -Type:"user" -UserPrincipalName:"$($SAM)@POLIFORMADL.COM" -AccountPassword (ConvertTo-SecureString "Password123" -AsPlainText -Force) -Enabled $true
 
     #New-ADUser -name "$($Displayname)" -GivenName "$($UserFirstname)" -SurName "$($UserLastname)" -SamAccountName "$($SAM)" -UserPrincipalName "$($UPN)" -AccountPassword (ConvertTo-SecureString "Password123" -AsPlainText -Force)  -PassThru | Enable-ADAccount ;
 
@@ -90,26 +90,31 @@ function Bulk-UserDelete()
       $ImportExport = $User.Staf
 
       #CN=Floris Flipse,OU=FabricageBudel,OU=Productie,OU=PFAfdelingen,DC=POLIFORMADL,DC=COM
-
+      $UserpathOU = ""
       if ($ImportExport -eq "X")
       {
-        $DistinguishedName = "$($DistinguishedName)OU=Staf,"
+        $UserpathOU = "Staf"
+        $DistinguishedName = "$($DistinguishedName)OU=$($UserpathOU),"
       }
       if ($Logistiek -eq "X")
       {
-        $DistinguishedName = "$($DistinguishedName)OU=Productie,"
+        $UserpathOU = "Productie"
+        $DistinguishedName = "$($DistinguishedName)OU=$($UserpathOU),"
       }
       if ($Boekhouding -eq "X")
       {
-        $DistinguishedName = "$($DistinguishedName)OU=Automatisering,"
+        $UserpathOU = "Automatisering"
+        $DistinguishedName = "$($DistinguishedName)OU=$($UserpathOU),"
       }
       if ($IT -eq "X")
       {
-        $DistinguishedName = "$($DistinguishedName)OU=Administratie,"
+        $UserpathOU = "Administratie"
+        $DistinguishedName = "$($DistinguishedName)OU=$($UserpathOU),"
       }
       if ($Manager -eq "X")
       {
-        $DistinguishedName = "$($DistinguishedName)OU=Directie,"
+        $UserpathOU = "Directie"
+        $DistinguishedName = "$($DistinguishedName)OU=$($UserpathOU),"
       }
 #------------------------------
 #if ($ImportExport -eq "X")
@@ -169,11 +174,6 @@ function Bulk-UserDelete()
           $Result = "User not found"
           Write-Host $UserAccount"      `t"$SAM"      `t"$Result"`t"$DistinguishedName
 
-          #create the user and assign to OU
-          #New-ADUser -name "$($Displayname)" -GivenName "$($UserFirstname)" -SurName "$($UserLastname)" -SamAccountName "$($SAM)" -UserPrincipalName "$($UPN)" -AccountPassword (ConvertTo-SecureString -AsPlainText "Password123" -Force) -PassThru | Enable-ADAccount ;
-
-
-
         }
 
 
@@ -222,27 +222,32 @@ function Bulk-UserCreate()
       $Logistiek = $User.Productie
       $ImportExport = $User.Staf
 
-      #CN=Floris Flipse,OU=FabricageBudel,OU=Productie,OU=PFAfdelingen,DC=POLIFORMADL,DC=COM
 
+      $UserpathOU = ""
       if ($ImportExport -eq "X")
       {
-        $DistinguishedName = "$($DistinguishedName)OU=Staf,"
+        $UserpathOU = "Staf"
+        $DistinguishedName = "$($DistinguishedName)OU=$($UserpathOU),"
       }
       if ($Logistiek -eq "X")
       {
-        $DistinguishedName = "$($DistinguishedName)OU=Productie,"
+        $UserpathOU = "Productie"
+        $DistinguishedName = "$($DistinguishedName)OU=$($UserpathOU),"
       }
       if ($Boekhouding -eq "X")
       {
-        $DistinguishedName = "$($DistinguishedName)OU=Automatisering,"
+        $UserpathOU = "Automatisering"
+        $DistinguishedName = "$($DistinguishedName)OU=$($UserpathOU),"
       }
       if ($IT -eq "X")
       {
-        $DistinguishedName = "$($DistinguishedName)OU=Administratie,"
+        $UserpathOU = "Administratie"
+        $DistinguishedName = "$($DistinguishedName)OU=$($UserpathOU),"
       }
       if ($Manager -eq "X")
       {
-        $DistinguishedName = "$($DistinguishedName)OU=Directie,"
+        $UserpathOU = "Directie"
+        $DistinguishedName = "$($DistinguishedName)OU=$($UserpathOU),"
       }
 #------------------------------
 #if ($ImportExport -eq "X")
@@ -287,7 +292,8 @@ function Bulk-UserCreate()
           Write-Host $UserAccount"      `t"$SAM"      `t"$Result"`t"$DistinguishedName
 
           #create the user and assign to OU
-          New-ADUser -name "$($Displayname)" -GivenName "$($UserFirstname)" -SurName "$($UserLastname)" -SamAccountName "$($SAM)" -UserPrincipalName "$($UPN)" -AccountPassword (ConvertTo-SecureString -AsPlainText "Password123" -Force)  -PassThru | Enable-ADAccount ;
+          New-ADUser -Department:"$($UserpathOU)" -DisplayName:"$($Displayname)" -GivenName:"$($UserFirstname)" -Name:"$($Displayname)" -Path:"OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -SamAccountName:"$($SAM)" -Server:"DLSV1.POLIFORMADL.COM" -Surname:"$($UserLastname)" -Type:"user" -UserPrincipalName:"$($SAM)@POLIFORMADL.COM"
+          #New-ADUser -name "$($Displayname)" -GivenName "$($UserFirstname)" -SurName "$($UserLastname)" -SamAccountName "$($SAM)" -UserPrincipalName "$($UPN)" -AccountPassword (ConvertTo-SecureString -AsPlainText "Password123" -Force)  -PassThru | Enable-ADAccount ;
 
           #Check after creation if user exists now
           if (dsquery user -samid $SAM)
