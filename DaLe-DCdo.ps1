@@ -51,8 +51,8 @@ function Bulk-UserDelete()
   #header of table
   Write-Host 'Displaying list of Users'
   Write-Host "Building DistinguishedName based on department(s)`n"
-  Write-Host "Account      `tSAM      `tExists?     `t`Result"
-  Write-Host "-------      `t---      `t-------     `t------"
+  Write-Host "Account      `tSAM      `tExists?     `t`t`Result"
+  Write-Host "-------      `t---      `t-------     `t`t------"
 
   #loop through all users
   foreach ($User in $Users)
@@ -166,7 +166,7 @@ function Bulk-UserDelete()
         }
 
 
-  Write-Host $UserAccount"      `t"$SAM"      `t"$Result"`t"$Result2
+  Write-Host $UserAccount"      `t"$SAM"      `t"$Result"`t`t"$Result2
 
   }
 
@@ -184,8 +184,8 @@ function Bulk-UserCreate()
 
       Write-Host 'Displaying list of Users'
       Write-Host "Building DistinguishedName based on department(s)`n"
-      Write-Host "Account      `tSAM      `tExists?      `tResult"
-      Write-Host "-------      `t---      `t-------   `t------"
+      Write-Host "Account      `tSAM      `tExists?      `t`tResult"
+      Write-Host "-------      `t---      `t-------   `t`t------"
 
   #loop through all users
   foreach ($User in $Users)
@@ -298,7 +298,7 @@ function Bulk-UserCreate()
           }
         }
 
-        Write-Host $UserAccount"      `t"$SAM"      `t"$Result"`t"$Result2
+        Write-Host $UserAccount"      `t"$SAM"      `t"$Result"`t`t"$Result2
   }
   Write-Host ""
   Write-Host "Finished reading csv file"

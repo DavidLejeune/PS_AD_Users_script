@@ -12,3 +12,4 @@ Date,UserID,LogDescription
 2/10/2016 12:52:19,Administrator,Testing individual add to OU ; not able to reproduce last nights succes,
 10/2/2016 1:11:12 PM,David,succeeded in single user add to correct OU,
 10/2/2016 1:29:31 PM,David,signle and bulk create go to correct ou (and enabled!),
+10/2/2016 2:10:59 PM,David,Sexified display of script (better table format),
