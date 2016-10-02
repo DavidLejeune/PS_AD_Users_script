@@ -82,7 +82,6 @@ function Show-Users()
     $sw = [Diagnostics.Stopwatch]::StartNew()
     #log users and show them
     Get-ADUser -SearchBase "OU=PFAfdelingen,dc=POLIFORMADL,dc=COM" -Filter * -properties * -ResultSetSize 5000 | select CN ,SAMAccountName, Department, Description , Title,UserPrincipalName, DistinguishedName, HomeDirectory, ProfilePath, Office, OfficePhone, Manager    | convertto-html | out-file ADUsers.html
-    #Get-ADUser -SearchBase "OU=PFAfdelingen,dc=POLIFORMADL,dc=COM" -Filter * -properties * -ResultSetSize 5000 | select CN ,SAMAccountName, Department, Description , Title,UserPrincipalName, DistinguishedName, HomeDirectory, ProfilePath, Office, OfficePhone, Manager ,Path
     Get-ADUser -SearchBase "dc=POLIFORMADL,dc=COM" -Filter * -properties * -ResultSetSize 5000 | select DistinguishedName,SAMAccountName, Department | format-table -autosize
     $sw.Stop()
     $time_elapsed = $sw.Elapsed.TotalSeconds
@@ -92,25 +91,27 @@ function Show-Users()
 
 function Check-UserExistence()
 {
-  $sw = [Diagnostics.Stopwatch]::StartNew()
-  $SAM = Read-Host -Prompt '> Enter SamAccountName ';
-  if (dsquery user -samid $SAM){"Found user"}
-  else {"Did not find user"}
-  $sw.Stop()
-  $time_elapsed = $sw.Elapsed.TotalSeconds
-  Write-Host "Task completed in "$time_elapsed" seconds."
-  Log-Action
+    $sw = [Diagnostics.Stopwatch]::StartNew()
+    $SAM = Read-Host -Prompt '> Enter SamAccountName ';
+    if (dsquery user -samid $SAM){"Found user"}
+    else {"Did not find user"}
+    $sw.Stop()
+    $time_elapsed = $sw.Elapsed.TotalSeconds
+    Write-Host "Task completed in "$time_elapsed" seconds."
+    Log-Action
 }
 
 function Bulk-UserDelete()
 {
   $sw = [Diagnostics.Stopwatch]::StartNew()
+
   #import data
   $Users = Import-Csv -Delimiter ";" -Path "personeel.csv"
+
   #header of table
   Write-Host "Get ready for the magic ...`n"
-  Write-Host "Account      `tSAM      `tExists?     `t`t`Action"
-  Write-Host "-------      `t---      `t-------     `t`t------"
+  Write-Host "Account      `tSAM      `tExists?      `t`tAction     `t`t`tOU"
+  Write-Host "-------      `t---      `t-------   `t`t------     `t`t`t--"
 
   #loop through all users
   foreach ($User in $Users)
@@ -139,30 +140,34 @@ function Bulk-UserDelete()
       $Logistiek = $User.Productie
       $ImportExport = $User.Staf
       $UserpathOU = ""
-      if ($ImportExport -eq "X")
-      {
-        $UserpathOU = "Staf"
-        $DistinguishedName = "$($DistinguishedName)OU=$($UserpathOU),"
-      }
-      if ($Logistiek -eq "X")
-      {
-        $UserpathOU = "Productie"
-        $DistinguishedName = "$($DistinguishedName)OU=$($UserpathOU),"
-      }
-      if ($Boekhouding -eq "X")
-      {
-        $UserpathOU = "Automatisering"
-        $DistinguishedName = "$($DistinguishedName)OU=$($UserpathOU),"
-      }
-      if ($IT -eq "X")
-      {
-        $UserpathOU = "Administratie"
-        $DistinguishedName = "$($DistinguishedName)OU=$($UserpathOU),"
-      }
+
       if ($Manager -eq "X")
       {
         $UserpathOU = "Directie"
         $DistinguishedName = "$($DistinguishedName)OU=$($UserpathOU),"
+      }
+      else
+      {
+          if ($ImportExport -eq "X")
+          {
+            $UserpathOU = "Staf"
+            $DistinguishedName = "$($DistinguishedName)OU=$($UserpathOU),"
+          }
+          if ($Logistiek -eq "X")
+          {
+            $UserpathOU = "Productie"
+            $DistinguishedName = "$($DistinguishedName)OU=$($UserpathOU),"
+          }
+          if ($Boekhouding -eq "X")
+          {
+            $UserpathOU = "Automatisering"
+            $DistinguishedName = "$($DistinguishedName)OU=$($UserpathOU),"
+          }
+          if ($IT -eq "X")
+          {
+            $UserpathOU = "Administratie"
+            $DistinguishedName = "$($DistinguishedName)OU=$($UserpathOU),"
+          }
       }
 #------------------------------
 #if ($ImportExport -eq "X")
@@ -224,7 +229,7 @@ function Bulk-UserDelete()
         }
 
 
-  Write-Host $UserAccount"      `t"$SAM"      `t"$Result"`t`t"$Result2
+        Write-Host $UserAccount"      `t"$SAM"      `t"$Result"`t`t"$Result2"      `t"$UserpathOU
 
   }
 
@@ -247,8 +252,8 @@ function Bulk-UserCreate()
 
       Write-Host "Building Path name based on department(s)`n"
       Write-Host "Get ready for the magic ...`n"
-      Write-Host "Account      `tSAM      `tExists?      `t`tAction"
-      Write-Host "-------      `t---      `t-------   `t`t------"
+      Write-Host "Account      `tSAM      `tExists?      `t`tAction     `t`t`tOU"
+      Write-Host "-------      `t---      `t-------   `t`t------     `t`t`t--"
 
   #loop through all users
   foreach ($User in $Users)
@@ -277,30 +282,33 @@ function Bulk-UserCreate()
 
 
       $UserpathOU = ""
-      if ($ImportExport -eq "X")
-      {
-        $UserpathOU = "Staf"
-        $DistinguishedName = "$($DistinguishedName)OU=$($UserpathOU),"
-      }
-      if ($Logistiek -eq "X")
-      {
-        $UserpathOU = "Productie"
-        $DistinguishedName = "$($DistinguishedName)OU=$($UserpathOU),"
-      }
-      if ($Boekhouding -eq "X")
-      {
-        $UserpathOU = "Automatisering"
-        $DistinguishedName = "$($DistinguishedName)OU=$($UserpathOU),"
-      }
-      if ($IT -eq "X")
-      {
-        $UserpathOU = "Administratie"
-        $DistinguishedName = "$($DistinguishedName)OU=$($UserpathOU),"
-      }
       if ($Manager -eq "X")
       {
         $UserpathOU = "Directie"
         $DistinguishedName = "$($DistinguishedName)OU=$($UserpathOU),"
+      }
+      else
+      {
+          if ($ImportExport -eq "X")
+          {
+            $UserpathOU = "Staf"
+            $DistinguishedName = "$($DistinguishedName)OU=$($UserpathOU),"
+          }
+          if ($Logistiek -eq "X")
+          {
+            $UserpathOU = "Productie"
+            $DistinguishedName = "$($DistinguishedName)OU=$($UserpathOU),"
+          }
+          if ($Boekhouding -eq "X")
+          {
+            $UserpathOU = "Automatisering"
+            $DistinguishedName = "$($DistinguishedName)OU=$($UserpathOU),"
+          }
+          if ($IT -eq "X")
+          {
+            $UserpathOU = "Administratie"
+            $DistinguishedName = "$($DistinguishedName)OU=$($UserpathOU),"
+          }
       }
 #------------------------------
 #if ($ImportExport -eq "X")
@@ -355,7 +363,7 @@ function Bulk-UserCreate()
           }
         }
 
-        Write-Host $UserAccount"      `t"$SAM"      `t"$Result"`t`t"$Result2
+        Write-Host $UserAccount"      `t"$SAM"      `t"$Result"`t`t"$Result2"      `t"$UserpathOU
   }
   Write-Host ""
   Write-Host "Finished reading csv file"
