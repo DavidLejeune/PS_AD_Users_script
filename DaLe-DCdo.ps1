@@ -173,7 +173,9 @@ function Bulk-UserDelete()
   Write-Host ""
   Write-Host "Finished reading csv file"
   $sw.Stop()
-  Write-Host "Task complete in "$sw.Elapsed.TotalSeconds" seconds."
+  $time_elapsed = $sw.Elapsed.TotalSeconds
+  Write-Host "Task complete in "$time_elapsed" seconds."
+  Log-Action
 }
 
 function Bulk-UserCreate()
@@ -300,7 +302,17 @@ function Bulk-UserCreate()
   Write-Host ""
   Write-Host "Finished reading csv file"
   $sw.Stop()
-  Write-Host "Task complete in "$sw.Elapsed.TotalSeconds" seconds."
+  $time_elapsed = $sw.Elapsed.TotalSeconds
+  Write-Host "Task complete in "$time_elapsed" seconds."
+  Log-Action
+}
+
+function Log-Action()
+{
+  $Date = Get-Date
+  $Entry = $Date.ToString() + "," + $env:username.ToString() + "," + $Menu.ToString() + ","+ $time_elapsed + ","
+
+  Add-Content script_logbook.csv $Entry
 }
 
 function Show-Header()
