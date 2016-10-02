@@ -53,7 +53,24 @@ function Delete-User()
     $sw = [Diagnostics.Stopwatch]::StartNew()
     #Delete user based on user input
     $SAM = Read-Host -Prompt '> SAM account name ';
-    remove-aduser -identity $SAM #-confirm:$false
+
+    #Check user existence
+    if (dsquery user -samid $SAM)
+    {
+      "Found user"
+      remove-aduser -identity $SAM #-confirm:$false
+      if (dsquery user -samid $SAM){"User unsuccesfully deleted"}
+      else {"User succesfully deleted"}
+    }
+    else
+    {
+      "Did not find user"
+    }
+
+
+
+
+
     $sw.Stop()
     $time_elapsed = $sw.Elapsed.TotalSeconds
     Write-Host "Task completed in "$time_elapsed" seconds."
@@ -76,8 +93,8 @@ function Show-Users()
 function Check-UserExistence()
 {
   $sw = [Diagnostics.Stopwatch]::StartNew()
-  $user = Read-Host -Prompt '> Enter SamAccountName ';
-  if (dsquery user -samid $user){"Found user"}
+  $SAM = Read-Host -Prompt '> Enter SamAccountName ';
+  if (dsquery user -samid $SAM){"Found user"}
   else {"Did not find user"}
   $sw.Stop()
   $time_elapsed = $sw.Elapsed.TotalSeconds
