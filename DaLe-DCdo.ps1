@@ -46,11 +46,11 @@ function Check-UserExistence()
 
 function Bulk-UserDelete()
 {
+  $sw = [Diagnostics.Stopwatch]::StartNew()
   #import data
   $Users = Import-Csv -Delimiter ";" -Path "personeel.csv"
   #header of table
-  Write-Host 'Displaying list of Users'
-  Write-Host "Building DistinguishedName based on department(s)`n"
+  Write-Host "Get ready for the magic ...`n"
   Write-Host "Account      `tSAM      `tExists?     `t`t`Result"
   Write-Host "-------      `t---      `t-------     `t`t------"
 
@@ -162,7 +162,7 @@ function Bulk-UserDelete()
         else
         {
           $Result = "User not found"
-
+          $Result2 =  "No action required"
         }
 
 
@@ -172,18 +172,21 @@ function Bulk-UserDelete()
 
   Write-Host ""
   Write-Host "Finished reading csv file"
+  $sw.Stop()
+  Write-Host "Task complete in "$sw.Elapsed.TotalSeconds" seconds."
 }
 
 function Bulk-UserCreate()
 {
+  $sw = [Diagnostics.Stopwatch]::StartNew()
+
   #main task
   #create users based on csv date
-
   #import data
   $Users = Import-Csv -Delimiter ";" -Path "personeel.csv"
 
-      Write-Host 'Displaying list of Users'
-      Write-Host "Building DistinguishedName based on department(s)`n"
+      Write-Host "Building Path name based on department(s)`n"
+      Write-Host "Get ready for the magic ...`n"
       Write-Host "Account      `tSAM      `tExists?      `t`tResult"
       Write-Host "-------      `t---      `t-------   `t`t------"
 
@@ -272,20 +275,14 @@ function Bulk-UserCreate()
         if (dsquery user -samid $SAM)
         {
           $Result = "User Found"
-
-
-
+          $Result2 =  "No action required"
         }
         else
         {
           $Result = "User not found"
 
           #create the user and assign to OU
-
           New-ADUser -Department:"$($UserpathOU)" -DisplayName:"$($Displayname)" -GivenName:"$($UserFirstname)" -Name:"$($Displayname)" -Path:"OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -SamAccountName:"$($SAM)" -Server:"DLSV1.POLIFORMADL.COM" -Surname:"$($UserLastname)" -Type:"user" -UserPrincipalName:"$($SAM)@POLIFORMADL.COM" -AccountPassword (ConvertTo-SecureString "Password123" -AsPlainText -Force) -Enabled $true
-
-          #New-ADUser -Department:"$($UserpathOU)" -DisplayName:"$($Displayname)" -GivenName:"$($UserFirstname)" -Name:"$($Displayname)" -Path:"OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -SamAccountName:"$($SAM)" -Server:"DLSV1.POLIFORMADL.COM" -Surname:"$($UserLastname)" -Type:"user" -UserPrincipalName:"$($SAM)@POLIFORMADL.COM"
-          #New-ADUser -name "$($Displayname)" -GivenName "$($UserFirstname)" -SurName "$($UserLastname)" -SamAccountName "$($SAM)" -UserPrincipalName "$($UPN)" -AccountPassword (ConvertTo-SecureString -AsPlainText "Password123" -Force)  -PassThru | Enable-ADAccount ;
 
           #Check after creation if user exists now
           if (dsquery user -samid $SAM)
@@ -302,6 +299,8 @@ function Bulk-UserCreate()
   }
   Write-Host ""
   Write-Host "Finished reading csv file"
+  $sw.Stop()
+  Write-Host "Task complete in "$sw.Elapsed.TotalSeconds" seconds."
 }
 
 function Show-Header()
@@ -348,34 +347,34 @@ switch ($Menu)
     {
         1
           {
-              Write-Host "`nYou have selected $Menu1`n";
+              Write-Host "`nYou have selected $(($Menu1).ToUpper())`n";
               $Menu = $Menu1;
               Create-OU;
           }
 
         2
           {
-              Write-Host "`nYou have selected $Menu2`n";
+              Write-Host "`nYou have selected $(($Menu2).ToUpper())`n";
               $Menu = $Menu2;
               Create-User;
           }
 
         3
           {
-              Write-Host "`nYou have selected $Menu3`n";
+              Write-Host "`nYou have selected $(($Menu3).ToUpper())`n";
               $Menu = $Menu3;
               Bulk-UserCreate;
           }
 
         4
           {
-              Write-Host "`nYou have selected $Menu4`n";
+              Write-Host "`nYou have selected $(($Menu4).ToUpper())`n";
               $Menu = $Menu4;
               Check-UserExistence;
           }
         5
           {
-              Write-Host "`nYou have selected $Menu5`n";
+              Write-Host "`nYou have selected $(($Menu5).ToUpper())`n";
               $Menu = $Menu5;
               Bulk-UserDelete;
           }
