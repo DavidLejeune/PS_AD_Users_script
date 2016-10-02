@@ -11,6 +11,7 @@ $Menu2 = "New User"
 $Menu3 = "Bulk create User from CSV"
 $Menu4 = "Check User existence"
 $Menu5 = "Bulk delete User from CSV"
+$Menu6 = "Show all users"
 
 
 #------------------------------------------------------------------------------
@@ -40,6 +41,18 @@ function Create-User()
     $pathOU = "ou=$($UserpathOU),ou=PFAfdelinen,dc=POLIFORMADL,dc=COM"
 
     New-ADUser -Department:"$($UserpathOU)" -DisplayName:"$($Displayname)" -GivenName:"$($UserFirstname)" -Name:"$($Displayname)" -Path:"OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -SamAccountName:"$($SAM)" -Server:"DLSV1.POLIFORMADL.COM" -Surname:"$($UserLastname)" -Type:"user" -UserPrincipalName:"$($SAM)@POLIFORMADL.COM" -AccountPassword (ConvertTo-SecureString "Password123" -AsPlainText -Force) -Enabled $true
+    $sw.Stop()
+    $time_elapsed = $sw.Elapsed.TotalSeconds
+    Write-Host "Task completed in "$time_elapsed" seconds."
+    Log-Action
+}
+
+function Show-Users()
+{
+    $sw = [Diagnostics.Stopwatch]::StartNew()
+    #log users and show them
+    Get-ADUser -SearchBase "OU=PFAfdelingen,dc=POLIFORMADL,dc=COM" -Filter * -properties * -ResultSetSize 5000 | select CN ,SAMAccountName, Department, Description , Title,UserPrincipalName, DistinguishedName, HomeDirectory, ProfilePath, Office, OfficePhone, Manager    | convertto-html | out-file C:\Users\Administrator\Desktop\ADUsers.html
+    Get-ADUser -SearchBase "OU=PFAfdelingen,dc=POLIFORMADL,dc=COM" -Filter * -properties * -ResultSetSize 5000 | select CN ,SAMAccountName, Department, Description , Title,UserPrincipalName, DistinguishedName, HomeDirectory, ProfilePath, Office, OfficePhone, Manager ,Path
     $sw.Stop()
     $time_elapsed = $sw.Elapsed.TotalSeconds
     Write-Host "Task completed in "$time_elapsed" seconds."
@@ -357,6 +370,7 @@ function Show-Header()
     Write-Host '    3. '$Menu3;
     Write-Host '    4. '$Menu4;
     Write-Host '    5. '$Menu5;
+    Write-Host '    6. '$Menu6;
     Write-Host "";
 }
 
@@ -403,6 +417,12 @@ switch ($Menu)
               Write-Host "`nYou have selected $(($Menu5).ToUpper())`n";
               $Menu = $Menu5;
               Bulk-UserDelete;
+          }
+        6
+          {
+              Write-Host "`nYou have selected $(($Menu6).ToUpper())`n";
+              $Menu = $Menu6;
+              Show-Users;
           }
 
         default {"The choice could not be determined."}
