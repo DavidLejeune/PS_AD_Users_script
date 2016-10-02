@@ -1,4 +1,7 @@
-﻿Import-Module ActiveDirectory
+#Description
+#To be done
+
+Import-Module ActiveDirectory
 
 #------------------------------------------------------------------------------
 #Script Variables
@@ -16,12 +19,12 @@ function Create-OU()
 {
     #create top level OU (needs to worked out further for depth)
     $OUname = Read-Host -Prompt '> OU name ';
-    New-ADOrganizationalUnit $OUname -path;
+    New-ADOrganizationalUnit $OUname ;
 }
 
 function Create-User()
 {
-    #Create user based on user inpu (input ok, ad action fail)
+    #Create user based on user input
     $UserFirstname = Read-Host -Prompt '> given name ';
     $UserLastname = Read-Host -Prompt '> surname ';
     $Displayname = $UserFirstname + " " + $UserLastname;
@@ -32,18 +35,6 @@ function Create-User()
 
     New-ADUser -Department:"$($UserpathOU)" -DisplayName:"$($Displayname)" -GivenName:"$($UserFirstname)" -Name:"$($Displayname)" -Path:"OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -SamAccountName:"$($SAM)" -Server:"DLSV1.POLIFORMADL.COM" -Surname:"$($UserLastname)" -Type:"user" -UserPrincipalName:"$($SAM)@POLIFORMADL.COM" -AccountPassword (ConvertTo-SecureString "Password123" -AsPlainText -Force) -Enabled $true
 
-    #New-ADUser -name "$($Displayname)" -GivenName "$($UserFirstname)" -SurName "$($UserLastname)" -SamAccountName "$($SAM)" -UserPrincipalName "$($UPN)" -AccountPassword (ConvertTo-SecureString "Password123" -AsPlainText -Force)  -PassThru | Enable-ADAccount ;
-
-    #PS I:\> New-ADUser -Name "david 1" -Surname "1" -GivenName "david" -SamAccountName "dav_1" -UserPrincipalName "dav_1@POLIFORMADL.COM
-    # (ConvertTo-SecureString "Password123" -AsPlainText -force) -Path 'OU=TestAfdeling,DC=POLIFORMA,DC=COM' -PassThru| Enable-ADAccount
-
-    #New-ADUser -name "$($Displayname)" -SamAccountName "$($SAM)" -UserPrincipalName "$($UPN)" -AccountPassword (ConvertTo-SecureString -AsPlainText "Password123" -Force) -PassThru | Enable-ADAccount ;
-    #Add-ADPrincipalGroupMembership -Identity:"CN=$($Displayname),CN=Users,DC=POLIFORMADL,DC=COM" -MemberOf:"CN=$($UserpathOU),OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Server:"DLSV1.POLIFORMADL.COM"
-    #Write-Host "'CN=$($Displayname),CN=Users,DC=POLIFORMADL,DC=COM'"
-    #Set-ADUser -DisplayName:"$($Displayname)" -GivenName:"$($UserFirstname)" -Identity:"CN=$($Displayname),CN=Users,DC=POLIFORMADL,DC=COM" -Server:"DLSV1.POLIFORMADL.COM"
-    #Rename-ADObject -Identity:"CN=$($Displayname),CN=Users,DC=POLIFORMADL,DC=COM" -NewName:"$($Displayname)" -Server:"DLSV1.POLIFORMADL.COM"
-
-#Initials:"$($UserLastname)"
 }
 
 function Check-UserExistence()
@@ -52,22 +43,22 @@ function Check-UserExistence()
   if (dsquery user -samid $user){"Found user"}
   else {"Did not find user"}
 }
+
 function Bulk-UserDelete()
 {
-
-
   #import data
   $Users = Import-Csv -Delimiter ";" -Path "personeel.csv"
-
-      Write-Host 'Displaying list of Users'
-      Write-Host "Building DistinguishedName based on department(s)`n"
-      Write-Host "Account      `tSAM      `tExists?     `t`Path"
-      Write-Host "-------      `t---      `t-------     `t----"
+  #header of table
+  Write-Host 'Displaying list of Users'
+  Write-Host "Building DistinguishedName based on department(s)`n"
+  Write-Host "Account      `tSAM      `tExists?     `t`Result"
+  Write-Host "-------      `t---      `t-------     `t------"
 
   #loop through all users
   foreach ($User in $Users)
   {
-      $Displayname = $User.Naam + " " + $User.Voornaam
+      #get Variables
+      $Displayname = $User.Voornaam + " " + $User.Naam
       $UserFirstname = $User.Naam
       $UserLastname = $User.Voornaam
       $UserAccount = $User.Account
@@ -83,13 +74,12 @@ function Bulk-UserDelete()
       #$Logistiek = $User.Logistiek
       #$ImportExport = $User.ImportExport
 
+      #find the department
       $Manager = $User.Directie
       $IT = $User.Administratie
       $Boekhouding =  $User.Automatisering
       $Logistiek = $User.Productie
       $ImportExport = $User.Staf
-
-      #CN=Floris Flipse,OU=FabricageBudel,OU=Productie,OU=PFAfdelingen,DC=POLIFORMADL,DC=COM
       $UserpathOU = ""
       if ($ImportExport -eq "X")
       {
@@ -152,31 +142,31 @@ function Bulk-UserDelete()
 
 
         $Result = ""
+        $Result2 = ""
         if (dsquery user -samid $SAM)
         {
           $Result = "User Found"
-          Write-Host $UserAccount"      `t"$SAM"      `t"$Result
           remove-aduser -identity $SAM -confirm:$false
 
           #Check after deletion if user exists now
           if (dsquery user -samid $SAM)
           {
-            Write-Host "Unsuccesfull in deleting user $($Displayname)"
+            $Result2 =  "Unsuccesfull in deleting user"
           }
           else
           {
-            Write-Host "User $($Displayname) succesfully deleted"
+            $Result2 =  "User succesfully deleted"
           }
 
         }
         else
         {
           $Result = "User not found"
-          Write-Host $UserAccount"      `t"$SAM"      `t"$Result"`t"$DistinguishedName
 
         }
 
 
+  Write-Host $UserAccount"      `t"$SAM"      `t"$Result"`t"$Result2
 
   }
 
@@ -194,13 +184,13 @@ function Bulk-UserCreate()
 
       Write-Host 'Displaying list of Users'
       Write-Host "Building DistinguishedName based on department(s)`n"
-      Write-Host "Account      `tSAM      `tExists?      `tPath"
-      Write-Host "-------      `t---      `t-------   `t----"
+      Write-Host "Account      `tSAM      `tExists?      `tResult"
+      Write-Host "-------      `t---      `t-------   `t------"
 
   #loop through all users
   foreach ($User in $Users)
   {
-      $Displayname = $User.Naam + " " + $User.Voornaam
+      $Displayname = $User.Voornaam + " " + $User.Naam
       $UserFirstname = $User.Naam
       $UserLastname = $User.Voornaam
       $UserAccount = $User.Account
@@ -278,10 +268,10 @@ function Bulk-UserCreate()
 
 
         $Result = ""
+        $Result2 = ""
         if (dsquery user -samid $SAM)
         {
           $Result = "User Found"
-          Write-Host $UserAccount"      `t"$SAM"      `t"$Result"`t"$DistinguishedName
 
 
 
@@ -289,7 +279,6 @@ function Bulk-UserCreate()
         else
         {
           $Result = "User not found"
-          Write-Host $UserAccount"      `t"$SAM"      `t"$Result"`t"$DistinguishedName
 
           #create the user and assign to OU
 
@@ -301,13 +290,15 @@ function Bulk-UserCreate()
           #Check after creation if user exists now
           if (dsquery user -samid $SAM)
           {
-            Write-Host "User $($Displayname) succesfully created"
+            $Result2 = "User succesfully created"
           }
           else
           {
-            Write-Host "Unsuccesfull in creating user $($Displayname)"
+            $Result2 = "Unsuccesfull in creating user"
           }
         }
+
+        Write-Host $UserAccount"      `t"$SAM"      `t"$Result"`t"$Result2
   }
   Write-Host ""
   Write-Host "Finished reading csv file"
