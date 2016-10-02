@@ -1,6 +1,25 @@
-#Description
-#To be done
+# Description
+# -----------
+# Active Directory Management tool
+# Created for Task1 Operating Systems Windows 2 @ Vives
+#
+# Author : David Lejeune
+# Created : 27/09/2016
+# School : Vives
+# Course : Operating Systems Windows 2
+# Class : 3PB-ICT
+# Group : 2
+#
+# Task goals
+# ----------
+# Manage an Active Directory on Windows Server 2012 R2
+# 1)Bulk create users based on csv (OK)
+# 2)Update users based on weekly csv updates (TBD)
 
+
+
+#------------------------------------------------------------------------------
+#Imports
 Import-Module ActiveDirectory
 
 #------------------------------------------------------------------------------
@@ -16,10 +35,34 @@ $Menu4 = "Check User existence"
 $Menu5 = "Bulk delete User from CSV"
 $Menu6 = "Show all users"
 $Menu7 = "Delete a user"
+$Menu99 = "Show Description"
 
 
 #------------------------------------------------------------------------------
 #Functions
+function Show-Description()
+{
+  #feeding the narcistic beast
+  "# Description"
+  "# -----------"
+  "# Active Directory Management tool"
+  "# Created for Task1 Operating Systems Windows 2 @ Vives"
+  "#"
+  "# Author : David Lejeune"
+  "# Created : 27/09/2016"
+  "# School : Vives"
+  "# Course : Operating Systems Windows 2"
+  "# Class : 3PB-ICT"
+  "# Group : 2"
+  "#"
+  "# Task goals"
+  "# ----------"
+  "# Manage an Active Directory on Windows Server 2012 R2"
+  "# 1)Bulk create users based on csv (OK)"
+  "# 2)Update users based on weekly csv updates (TBD)"
+  ""
+}
+
 function Create-OU()
 {
     #create top level OU (needs to worked out further for depth)
@@ -45,8 +88,6 @@ function Create-User()
 
 function Delete-User()
 {
-
-
     Show-Users
     #Delete user based on user input
     $SAM = Read-Host -Prompt '> SAM account name ';
@@ -386,6 +427,8 @@ function Show-Header()
     Write-Host '    5. '$Menu5;
     Write-Host '    6. '$Menu6;
     Write-Host '    7. '$Menu7;
+    Write-Host '   ';
+    Write-Host '    99.'$Menu99;
     Write-Host "";
 }
 
@@ -445,6 +488,12 @@ switch ($Menu)
               Write-Host "`nYou have selected $(($Menu7).ToUpper())`n";
               $Menu = $Menu7;
               Delete-User;
+          }
+        99
+          {
+              Write-Host "`nYou have selected $(($Menu99).ToUpper())`n";
+              $Menu = $Menu99;
+              Show-Description;
           }
 
         default {"The choice could not be determined."}
