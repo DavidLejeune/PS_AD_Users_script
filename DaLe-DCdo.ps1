@@ -382,13 +382,98 @@ function Bulk-UserCreate()
           }
 
           $UserpathOU = ""
+          $Boss = "False"
+          $countDepartments = 0
           if ($Manager -eq "X")
           {
             $UserpathOU = "Directie"
             $DistinguishedName = "$($DistinguishedName)OU=$($UserpathOU),"
+            $Boss = "True"
+            #assign to the correct group(s)
+            Set-ADGroup -Add:@{'Member'="CN=$($Displayname),OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM"} -Identity:"CN=$($UserpathOU),OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Server:"DLSV1.POLIFORMADL.COM"
+            $countDepartments = $countDepartments + 1
+            #Add-ADPrincipalGroupMembership -Identity:"CN=$($Displayname),OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -MemberOf:"CN=$($UserpathOU),OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Server:"DLSV1.POLIFORMADL.COM"
           }
           else
           {
+              if ($ImportExport -eq "X")
+              {
+                $UserpathOU = "Staf"
+                $DistinguishedName = "$($DistinguishedName)OU=$($UserpathOU),"
+                $countDepartments = $countDepartments + 1
+              }
+              if ($Logistiek -eq "X")
+              {
+                $UserpathOU = "Productie"
+                $DistinguishedName = "$($DistinguishedName)OU=$($UserpathOU),"
+                $countDepartments = $countDepartments + 1
+              }
+              if ($Boekhouding -eq "X")
+              {
+                $UserpathOU = "Automatisering"
+                $DistinguishedName = "$($DistinguishedName)OU=$($UserpathOU),"
+                $countDepartments = $countDepartments + 1
+              }
+              if ($IT -eq "X")
+              {
+                $UserpathOU = "Administratie"
+                $DistinguishedName = "$($DistinguishedName)OU=$($UserpathOU),"
+                $countDepartments = $countDepartments + 1
+              }
+              #assign to the correct group(s)
+              Set-ADGroup -Add:@{'Member'="CN=$($Displayname),OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM"} -Identity:"CN=$($UserpathOU),OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Server:"DLSV1.POLIFORMADL.COM"
+              #Add-ADPrincipalGroupMembership -Identity:"CN=$($Displayname),OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -MemberOf:"CN=$($UserpathOU),OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Server:"DLSV1.POLIFORMADL.COM"
+
+          }
+
+
+          #repeating for the principal groupmembership
+          $UserpathOU = ""
+          $Boss = "False"
+          $countDepartments = 0
+          if ($Manager -eq "X")
+          {
+            $UserpathOU = "Directie"
+            $DistinguishedName = "$($DistinguishedName)OU=$($UserpathOU),"
+            $Boss = "True"
+            Add-ADPrincipalGroupMembership -Identity:"CN=$($Displayname),OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -MemberOf:"CN=$($UserpathOU),OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Server:"DLSV1.POLIFORMADL.COM"
+
+            $SubOU = ""
+            if ($ImportExport -eq "X")
+            {
+              $SubOU = "Staf"
+              $DistinguishedName = "OU=$($UserpathOU),"
+              Add-ADPrincipalGroupMembership -Identity:"CN=$($Displayname),OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -MemberOf:"CN=$($SubOU),OU=$($SubOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Server:"DLSV1.POLIFORMADL.COM"
+
+            }
+            if ($Logistiek -eq "X")
+            {
+              $SubOU = "Productie"
+              $DistinguishedName = "OU=$($UserpathOU),"
+              Add-ADPrincipalGroupMembership -Identity:"CN=$($Displayname),OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -MemberOf:"CN=$($SubOU),OU=$($SubOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Server:"DLSV1.POLIFORMADL.COM"
+
+            }
+            if ($Boekhouding -eq "X")
+            {
+              $SubOU = "Automatisering"
+              $DistinguishedName = "OU=$($UserpathOU),"
+              Add-ADPrincipalGroupMembership -Identity:"CN=$($Displayname),OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -MemberOf:"CN=$($SubOU),OU=$($SubOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Server:"DLSV1.POLIFORMADL.COM"
+
+            }
+            if ($IT -eq "X")
+            {
+              $SubOU = "Administratie"
+              $DistinguishedName = "OU=$($UserpathOU),"
+              Add-ADPrincipalGroupMembership -Identity:"CN=$($Displayname),OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -MemberOf:"CN=$($SubOU),OU=$($SubOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Server:"DLSV1.POLIFORMADL.COM"
+
+            }
+
+
+
+          }
+          else
+          {
+
               if ($ImportExport -eq "X")
               {
                 $UserpathOU = "Staf"
@@ -409,11 +494,28 @@ function Bulk-UserCreate()
                 $UserpathOU = "Administratie"
                 $DistinguishedName = "$($DistinguishedName)OU=$($UserpathOU),"
               }
+
+              Add-ADPrincipalGroupMembership -Identity:"CN=$($Displayname),OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -MemberOf:"CN=$($UserpathOU),OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Server:"DLSV1.POLIFORMADL.COM"
+
           }
-          #assign to the correct group(s)
-          Set-ADGroup -Add:@{'Member'="CN=$($Displayname),OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM"} -Identity:"CN=$($UserpathOU),OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Server:"DLSV1.POLIFORMADL.COM"
 
 
+          #-----------------------------------------
+
+
+          #used to see if the big boss exists ($boss true and count 1)
+          if ($Boss -eq "False")
+          {
+            if ($countDepartments -eq 0)
+            {
+
+            }
+          }
+          else
+          {
+
+          }
+          Add-ADPrincipalGroupMembership -Identity:"CN=$($Displayname),OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -MemberOf:"CN=$($UserpathOU),OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Server:"DLSV1.POLIFORMADL.COM"
         }
 
         #Set-ADGroup -Add:@{'Member'="CN=Tom Cordemans,OU=Staf,OU=PFAfdelingen,DC=POLIFORMADL,DC=COM"}
