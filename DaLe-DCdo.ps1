@@ -140,7 +140,7 @@ function Bulk-UserDelete()
   #loop through all users
   foreach ($User in $Users)
   {
-      #get Variables
+      #get csv Variables
       $Displayname = $User.Voornaam + " " + $User.Naam
       $UserFirstname = $User.Naam
       $UserLastname = $User.Voornaam
@@ -270,10 +270,10 @@ function Bulk-UserCreate()
   #import data
   $Users = Import-Csv -Delimiter ";" -Path "personeel.csv"
 
-      Write-Host "Building Path name based on department(s)`n"
-      Write-Host "Get ready for the magic ...`n"
-      Write-Host "Account      `tSAM      `tExists?      `t`tAction     `t`t`tOU"
-      Write-Host "-------      `t---      `t-------   `t`t------     `t`t`t--"
+  Write-Host "Crunching data like a boss`n"
+  Write-Host "Get ready for the magic ...`n"
+  Write-Host "Account      `tSAM      `tExists?      `t`tAction     `t`t`tOU"
+  Write-Host "-------      `t---      `t-------   `t`t------     `t`t`t--"
 
   #loop through all users
   foreach ($User in $Users)
@@ -286,6 +286,7 @@ function Bulk-UserCreate()
       $UPN = "$($SAM)@POLIFORMADL.com"
       $OU = ""
       $DistinguishedName = ""
+      $BossName = ""
 
       #find ou
       #$Manager = $User.Manager
@@ -330,6 +331,8 @@ function Bulk-UserCreate()
             $DistinguishedName = "$($DistinguishedName)OU=$($UserpathOU),"
           }
       }
+
+
 #------------------------------
 #if ($ImportExport -eq "X")
 #{
@@ -352,18 +355,14 @@ function Bulk-UserCreate()
 #  $DistinguishedName = "$($DistinguishedName)OU=Manager,"
 #}
 
-
-
         $DistinguishedName = "$($DistinguishedName)OU=PFAfdelingen,DC=POLIFORMA,DC=COM,"
-
-
 
         $Result = ""
         $Result2 = ""
         if (dsquery user -samid $SAM)
         {
           $Result = "User Found"
-          $Result2 =  "No action required"
+          $Result2 =  "No creation required"
         }
         else
         {
@@ -381,7 +380,54 @@ function Bulk-UserCreate()
           {
             $Result2 = "Unsuccesfull in creating user"
           }
+
+          $UserpathOU = ""
+          if ($Manager -eq "X")
+          {
+            $UserpathOU = "Directie"
+            $DistinguishedName = "$($DistinguishedName)OU=$($UserpathOU),"
+          }
+          else
+          {
+              if ($ImportExport -eq "X")
+              {
+                $UserpathOU = "Staf"
+                $DistinguishedName = "$($DistinguishedName)OU=$($UserpathOU),"
+              }
+              if ($Logistiek -eq "X")
+              {
+                $UserpathOU = "Productie"
+                $DistinguishedName = "$($DistinguishedName)OU=$($UserpathOU),"
+              }
+              if ($Boekhouding -eq "X")
+              {
+                $UserpathOU = "Automatisering"
+                $DistinguishedName = "$($DistinguishedName)OU=$($UserpathOU),"
+              }
+              if ($IT -eq "X")
+              {
+                $UserpathOU = "Administratie"
+                $DistinguishedName = "$($DistinguishedName)OU=$($UserpathOU),"
+              }
+          }
+          #assign to the correct group(s)
+          Set-ADGroup -Add:@{'Member'="CN=$($Displayname),OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM"} -Identity:"CN=$($UserpathOU),OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Server:"DLSV1.POLIFORMADL.COM"
+
+
         }
+
+        #Set-ADGroup -Add:@{'Member'="CN=Tom Cordemans,OU=Staf,OU=PFAfdelingen,DC=POLIFORMADL,DC=COM"}
+        #-Identity:"CN=Staf,OU=Staf,OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Server:"DLSV1.POLIFORMADL.COM"
+
+        #Add-ADPrincipalGroupMembership -Identity:"CN=Luc Pasteels,OU=Directie,OU=PFAfdelingen,DC=POLIFORMADL,DC=COM"
+        #-MemberOf:"CN=Automatisering,OU=Automatisering,OU=PFAfdelingen,DC=POLIFORMADL,DC=COM","CN=Directie,OU=Directie,OU=PFAfdelingen,DC=POLIFORMADL,DC=COM"
+        #-Server:"DLSV1.POLIFORMADL.COM"
+
+        #Set-ADGroup -Identity:"CN=Directie,OU=Directie,OU=PFAfdelingen,DC=POLIFORMADL,DC=COM"
+        #-ManagedBy:"CN=Robert Hasselbanks,OU=Directie,OU=PFAfdelingen,DC=POLIFORMADL,DC=COM"
+        #-Server:"DLSV1.POLIFORMADL.COM"
+
+
 
         Write-Host $UserAccount"      `t"$SAM"      `t"$Result"`t`t"$Result2"      `t"$UserpathOU
   }
@@ -418,6 +464,11 @@ function Show-Header()
     Write-Host ' #    ACTIVE DIRECTORY MANAGEMENT    #'
     Write-Host ' #####################################'
     Write-Host ''
+}
+
+function Show-Menu()
+{
+  #making this script sexy
     Write-Host " Menu :";
     Write-Host "";
     Write-Host '    1. '$Menu1;
@@ -438,6 +489,7 @@ function Show-Header()
 
 
 Show-Header;
+Show-Menu;
 
 #Select action
 $Menu = Read-Host -Prompt 'Select an option ';
