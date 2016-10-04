@@ -272,8 +272,8 @@ function Bulk-UserCreate()
 
   Write-Host "Crunching data like a boss`n"
   Write-Host "Get ready for the magic ...`n"
-  Write-Host "Account      `tSAM      `tExists?      `t`tAction     "#`t`t`tOU"
-  Write-Host "-------      `t---      `t-------   `t`t------     "#`t`t`t--"
+  Write-Host "Account      `tSAM      `tExists?      `t`tAction     `t`t`tOU`t`t     `tSubgroup"
+  Write-Host "-------      `t---      `t-------   `t`t------     `t`t`t--`t`t     `t--------"
 
   #loop through all users
   foreach ($User in $Users)
@@ -359,6 +359,7 @@ function Bulk-UserCreate()
 
         $Result = ""
         $Result2 = ""
+
         if (dsquery user -samid $SAM)
         {
           $Result = "User Found"
@@ -425,12 +426,11 @@ function Bulk-UserCreate()
           }
 
 
-          $Result2 = "$($Result2),OU=$($UserpathOU)"
-
           #repeating for the (sub) groupmembership
           $UserpathOU = ""
           $Boss = "False"
           $countDepartments = 0
+          $SubOU = ""
           if ($Manager -eq "X")
           {
             $UserpathOU = "Directie"
@@ -438,36 +438,34 @@ function Bulk-UserCreate()
             $Boss = "True"
             Add-ADPrincipalGroupMembership -Identity:"CN=$($Displayname),OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -MemberOf:"CN=$($UserpathOU),OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Server:"DLSV1.POLIFORMADL.COM"
 
-            $Result2 = "$($Result2),Group=$($UserpathOU)"
 
-            $SubOU = ""
             if ($ImportExport -eq "X")
             {
               $SubOU = "Staf"
               $DistinguishedName = "OU=$($UserpathOU),"
               Add-ADPrincipalGroupMembership -Identity:"CN=$($Displayname),OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -MemberOf:"CN=$($SubOU),OU=$($SubOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Server:"DLSV1.POLIFORMADL.COM"
-              $Result2 = "$($Result2),OU=$($SubOU)"
+
             }
             if ($Logistiek -eq "X")
             {
               $SubOU = "Productie"
               $DistinguishedName = "OU=$($UserpathOU),"
               Add-ADPrincipalGroupMembership -Identity:"CN=$($Displayname),OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -MemberOf:"CN=$($SubOU),OU=$($SubOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Server:"DLSV1.POLIFORMADL.COM"
-              $Result2 = "$($Result2),OU=$($SubOU)"
+
             }
             if ($Boekhouding -eq "X")
             {
               $SubOU = "Automatisering"
               $DistinguishedName = "OU=$($UserpathOU),"
               Add-ADPrincipalGroupMembership -Identity:"CN=$($Displayname),OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -MemberOf:"CN=$($SubOU),OU=$($SubOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Server:"DLSV1.POLIFORMADL.COM"
-              $Result2 = "$($Result2),OU=$($SubOU)"
+
             }
             if ($IT -eq "X")
             {
               $SubOU = "Administratie"
               $DistinguishedName = "OU=$($UserpathOU),"
               Add-ADPrincipalGroupMembership -Identity:"CN=$($Displayname),OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -MemberOf:"CN=$($SubOU),OU=$($SubOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Server:"DLSV1.POLIFORMADL.COM"
-              $Result2 = "$($Result2),OU=$($SubOU)"
+
             }
 
 
@@ -496,7 +494,7 @@ function Bulk-UserCreate()
                 $UserpathOU = "Administratie"
                 $DistinguishedName = "$($DistinguishedName)OU=$($UserpathOU),"
               }
-              $Result2 = "$($Result2),OU=$($UserpathOU)"
+
               Add-ADPrincipalGroupMembership -Identity:"CN=$($Displayname),OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -MemberOf:"CN=$($UserpathOU),OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Server:"DLSV1.POLIFORMADL.COM"
 
           }
@@ -519,7 +517,7 @@ function Bulk-UserCreate()
           }
     }
 
-        Write-Host $UserAccount"      `t"$SAM"      `t"$Result"`t`t"$Result2 #"      `t"$UserpathOU
+        Write-Host "$($UserAccount)      `t$($SAM)      `t$($Result)`t`t$($Result2)      `t$($UserpathOU)     `t`t$($SubOU)"
   }
   Write-Host ""
   Write-Host "Finished reading csv file"
