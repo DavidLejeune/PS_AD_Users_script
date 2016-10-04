@@ -393,7 +393,7 @@ function Bulk-UserCreate()
             $Boss = "True"
 
             Set-ADGroup -Add:@{'Member'="CN=$($Displayname),OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM"} -Identity:"CN=$($UserpathOU),OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Server:"DLSV1.POLIFORMADL.COM"
-            $countDepartments = $countDepartments + 1
+
           }
           else
           {
@@ -429,7 +429,6 @@ function Bulk-UserCreate()
           #repeating for the (sub) groupmembership
           $UserpathOU = ""
           $Boss = "False"
-          $countDepartments = 0
           $SubOU = ""
           if ($Manager -eq "X")
           {
@@ -437,35 +436,35 @@ function Bulk-UserCreate()
             $DistinguishedName = "$($DistinguishedName)OU=$($UserpathOU),"
             $Boss = "True"
             Add-ADPrincipalGroupMembership -Identity:"CN=$($Displayname),OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -MemberOf:"CN=$($UserpathOU),OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Server:"DLSV1.POLIFORMADL.COM"
-
+            $countDepartments = $countDepartments + 1
 
             if ($ImportExport -eq "X")
             {
               $SubOU = "Staf"
               $DistinguishedName = "OU=$($UserpathOU),"
               Add-ADPrincipalGroupMembership -Identity:"CN=$($Displayname),OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -MemberOf:"CN=$($SubOU),OU=$($SubOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Server:"DLSV1.POLIFORMADL.COM"
-
+              $countDepartments = $countDepartments + 1
             }
             if ($Logistiek -eq "X")
             {
               $SubOU = "Productie"
               $DistinguishedName = "OU=$($UserpathOU),"
               Add-ADPrincipalGroupMembership -Identity:"CN=$($Displayname),OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -MemberOf:"CN=$($SubOU),OU=$($SubOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Server:"DLSV1.POLIFORMADL.COM"
-
+              $countDepartments = $countDepartments + 1
             }
             if ($Boekhouding -eq "X")
             {
               $SubOU = "Automatisering"
               $DistinguishedName = "OU=$($UserpathOU),"
               Add-ADPrincipalGroupMembership -Identity:"CN=$($Displayname),OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -MemberOf:"CN=$($SubOU),OU=$($SubOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Server:"DLSV1.POLIFORMADL.COM"
-
+              $countDepartments = $countDepartments + 1
             }
             if ($IT -eq "X")
             {
               $SubOU = "Administratie"
               $DistinguishedName = "OU=$($UserpathOU),"
               Add-ADPrincipalGroupMembership -Identity:"CN=$($Displayname),OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -MemberOf:"CN=$($SubOU),OU=$($SubOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Server:"DLSV1.POLIFORMADL.COM"
-
+              $countDepartments = $countDepartments + 1
             }
 
 
@@ -504,16 +503,12 @@ function Bulk-UserCreate()
 
 
           #used to see if the big boss exists ($boss true and count 1)
-          if ($Boss -eq "False")
+          if ($Manager -eq "X")
           {
-            if ($countDepartments -eq 0)
+            if ($countDepartments -eq 1)
             {
-
+                $SubOU = "Boss of Bosses"
             }
-          }
-          else
-          {
-
           }
     }
 
