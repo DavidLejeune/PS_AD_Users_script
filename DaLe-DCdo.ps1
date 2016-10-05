@@ -538,9 +538,9 @@ function Set-Manager()
   #import data
   $Users = Import-Csv -Delimiter ";" -Path "personeel.csv"
 
-  Write-Host "Setting manager for OU's`n"
-  Write-Host "SAM      `tManager of      `t`tAction"
-  Write-Host "---      `t----------      `t`t------"
+  Write-Host "Setting manager for users in OU's`n"
+  Write-Host "SAM      `tManager of`t`tAction"
+  Write-Host "---      `t----------`t`t------"
 
   $manDirectie = ""
   $manAdministratie = ""
@@ -604,7 +604,7 @@ function Set-Manager()
               #Set-ADGroup -Identity:"CN=Directie,OU=Directie,OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -ManagedBy:"CN=Bert Laplasse,OU=Directie,OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Server:"DLSV1.POLIFORMADL.COM"
               $manStaf = $Displayname
               Get-ADUser -SearchBase "OU=$($SubOU),OU=PFAfdelingen,dc=POLIFORMADL,dc=COM" -Filter * -properties * -ResultSetSize 5000 | Set-ADUser  -Manager "$($SAM)" #-Identity:"$($_.SAMAccountName)" -Manager  #-Server:"DLSV1.POLIFORMADL.COM"
-              $Result = "Managers set for users in OU"
+              $Result = "    `tSet as manager for all users in OU"
             }
 
             if ($Logistiek -eq "X")
@@ -614,7 +614,7 @@ function Set-Manager()
               $countDepartments = $countDepartments + 1
               $manLogistiek = $Displayname
               Get-ADUser -SearchBase "OU=$($SubOU),OU=PFAfdelingen,dc=POLIFORMADL,dc=COM" -Filter * -properties * -ResultSetSize 5000 | Set-ADUser  -Manager "$($SAM)" #-Identity:"$($_.SAMAccountName)" -Manager  #-Server:"DLSV1.POLIFORMADL.COM"
-              $Result = "Managers set for users in OU"
+              $Result = "Set as manager for all users in OU"
 
             }
             if ($Boekhouding -eq "X")
@@ -624,7 +624,7 @@ function Set-Manager()
               $countDepartments = $countDepartments + 1
               $manBoekhouding = $Displayname
               Get-ADUser -SearchBase "OU=$($SubOU),OU=PFAfdelingen,dc=POLIFORMADL,dc=COM" -Filter * -properties * -ResultSetSize 5000 | Set-ADUser  -Manager "$($SAM)" #-Identity:"$($_.SAMAccountName)" -Manager  #-Server:"DLSV1.POLIFORMADL.COM"
-              $Result = "Managers set for users in OU"
+              $Result = "Set as manager for all users in OU"
 
             }
             if ($IT -eq "X")
@@ -634,7 +634,7 @@ function Set-Manager()
               $countDepartments = $countDepartments + 1
               $manAdministratie = $Displayname
               Get-ADUser -SearchBase "OU=$($SubOU),OU=PFAfdelingen,dc=POLIFORMADL,dc=COM" -Filter * -properties * -ResultSetSize 5000 | Set-ADUser  -Manager "$($SAM)" #-Identity:"$($_.SAMAccountName)" -Manager  #-Server:"DLSV1.POLIFORMADL.COM"
-              $Result = "Managers set for users in OU"
+              $Result = "Set as manager for all users in OU"
 
             }
 
@@ -659,7 +659,7 @@ function Set-Manager()
                 #Write-Host "Setting manager $($Displayname) for users in $($SubOU) "
                 #Get-ADUser -SearchBase "OU=$($UserpathOU),OU=PFAfdelingen,dc=POLIFORMADL,dc=COM" -Filter * -properties * -ResultSetSize 5000 | select SAMAccountName # Set-ADUser -Identity:"CN=Linda Hombroeckx,OU=Productie,OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Manager:$null -Server:"DLSV1.POLIFORMADL.COM"
                 Get-ADUser -SearchBase "OU=$($SubOU),OU=PFAfdelingen,dc=POLIFORMADL,dc=COM" -Filter * -properties * -ResultSetSize 5000 | Set-ADUser  -Manager "$($SAM)" #-Identity:"$($_.SAMAccountName)" -Manager  #-Server:"DLSV1.POLIFORMADL.COM"
-                $Result = "Manager set for all users in OU"
+                $Result = "Set as manager for all users in OU"
 
               }
           }
@@ -668,11 +668,11 @@ function Set-Manager()
           if ($SubOU -eq "")
           {}
             else{
-              Write-Host "$($SAM)      `t$($SubOU)  `t`t`t$($Result)"
+              Write-Host "$($SAM)      `t$($SubOU)`t`t$($Result)"
             }
   }
   Write-Host ""
-  Write-Host "Finished determining managers"
+  Write-Host "Finished setting managers for all users"
 }
 
 
