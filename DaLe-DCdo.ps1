@@ -30,7 +30,7 @@ $DC2 = "COM"
 $Menu = ""
 $Menu1 = "Create new OU";
 $Menu2 = "New User"
-$Menu3 = "Bulk create User from CSV"
+$Menu3 = "Bulk Usermanagement based on CSV"
 $Menu4 = "Check User existence"
 $Menu5 = "Bulk delete User from CSV"
 $Menu6 = "Show all users"
@@ -193,7 +193,7 @@ function Bulk-UserDelete()
             $DistinguishedName = "$($DistinguishedName)OU=$($UserpathOU),"
           }
       }
-#------------------------------
+
 #if ($ImportExport -eq "X")
 #{
 #  $DistinguishedName = "$($DistinguishedName)OU=ImportExport,"
@@ -261,7 +261,7 @@ function Bulk-UserDelete()
   Write-Host " *** Finished bulk deleting users *** "
 }
 
-function Bulk-UserCreate()
+function Bulk-UserManagement()
 {
 
   #main task
@@ -269,8 +269,9 @@ function Bulk-UserCreate()
   #import data
   $Users = Import-Csv -Delimiter ";" -Path "personeel.csv"
 
-  Write-Host "Crunching data like a boss`n"
+  Write-Host "Crunching data like a boss"
   Write-Host "Get ready for the magic ...`n"
+  Write-Host "Creating users`n"
   Write-Host "SAM      `tExists?      `t`tAction     `t`t`tOU`t`t     `tSubgroup"
   Write-Host "---      `t-------   `t`t------     `t`t`t--`t`t     `t--------"
 
@@ -957,7 +958,7 @@ switch ($Menu)
           {
               Write-Host "`nYou have selected $(($Menu3).ToUpper())`n";
               $Menu = $Menu3;
-              Bulk-UserCreate;
+              Bulk-UserManagement;
           }
 
         4
