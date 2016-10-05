@@ -134,8 +134,8 @@ function Bulk-UserDelete()
 
   #header of table
   Write-Host "Get ready for the magic ...`n"
-  Write-Host "Account      `tSAM      `tExists?      `t`tAction     `t`t`tOU"
-  Write-Host "-------      `t---      `t-------   `t`t------     `t`t`t--"
+  Write-Host "SAM      `tExists?      `t`tAction     `t`t`tOU"
+  Write-Host "---      `t-------   `t`t------     `t`t`t--"
 
   #loop through all users
   foreach ($User in $Users)
@@ -253,7 +253,7 @@ function Bulk-UserDelete()
         }
 
 
-        Write-Host $UserAccount"      `t"$SAM"      `t"$Result"`t`t"$Result2"      `t"$UserpathOU
+        Write-Host $SAM"      `t"$Result"`t`t"$Result2"      `t"$UserpathOU
 
   }
 
@@ -445,6 +445,8 @@ function Bulk-UserCreate()
               Add-ADPrincipalGroupMembership -Identity:"CN=$($Displayname),OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -MemberOf:"CN=$($SubOU),OU=$($SubOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Server:"DLSV1.POLIFORMADL.COM"
               $countDepartments = $countDepartments + 1
               #Set-ADGroup -Identity:"CN=Directie,OU=Directie,OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -ManagedBy:"CN=Bert Laplasse,OU=Directie,OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Server:"DLSV1.POLIFORMADL.COM"
+              Set-ADGroup -Identity:"CN=$($SubOU),OU=$($SubOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -ManagedBy:"CN=$($Displayname),OU=Directie,OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Server:"DLSV1.POLIFORMADL.COM"
+
             }
             if ($Logistiek -eq "X")
             {
@@ -452,6 +454,7 @@ function Bulk-UserCreate()
               $DistinguishedName = "OU=$($UserpathOU),"
               Add-ADPrincipalGroupMembership -Identity:"CN=$($Displayname),OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -MemberOf:"CN=$($SubOU),OU=$($SubOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Server:"DLSV1.POLIFORMADL.COM"
               $countDepartments = $countDepartments + 1
+              Set-ADGroup -Identity:"CN=$($SubOU),OU=$($SubOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -ManagedBy:"CN=$($Displayname),OU=Directie,OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Server:"DLSV1.POLIFORMADL.COM"
             }
             if ($Boekhouding -eq "X")
             {
@@ -459,6 +462,7 @@ function Bulk-UserCreate()
               $DistinguishedName = "OU=$($UserpathOU),"
               Add-ADPrincipalGroupMembership -Identity:"CN=$($Displayname),OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -MemberOf:"CN=$($SubOU),OU=$($SubOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Server:"DLSV1.POLIFORMADL.COM"
               $countDepartments = $countDepartments + 1
+              Set-ADGroup -Identity:"CN=$($SubOU),OU=$($SubOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -ManagedBy:"CN=$($Displayname),OU=Directie,OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Server:"DLSV1.POLIFORMADL.COM"
             }
             if ($IT -eq "X")
             {
@@ -466,6 +470,7 @@ function Bulk-UserCreate()
               $DistinguishedName = "OU=$($UserpathOU),"
               Add-ADPrincipalGroupMembership -Identity:"CN=$($Displayname),OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -MemberOf:"CN=$($SubOU),OU=$($SubOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Server:"DLSV1.POLIFORMADL.COM"
               $countDepartments = $countDepartments + 1
+              Set-ADGroup -Identity:"CN=$($SubOU),OU=$($SubOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -ManagedBy:"CN=$($Displayname),OU=Directie,OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Server:"DLSV1.POLIFORMADL.COM"
             }
 
 
