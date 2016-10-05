@@ -235,6 +235,12 @@ function Bulk-UserDelete()
           $Result = "User Found"
           remove-aduser -identity $SAM -confirm:$false
 
+          #remove user from groups
+          #$DGs= Get-DistributionGroup | where { (Get-DistributionGroupMember $_ | foreach {$_.UserPrincipalName}) -contains $UPN}
+          #foreach( $dg in $DGs){
+          #    Remove-DistributionGroupMember $dg -Member $UPN
+          #  }
+
           #Check after deletion if user exists now
           if (dsquery user -samid $SAM)
           {
