@@ -258,12 +258,11 @@ function Bulk-UserDelete()
   }
 
   Write-Host ""
-  Write-Host "Finished reading csv file"
+  Write-Host " *** Finished bulk deleting users *** "
 }
 
 function Bulk-UserCreate()
 {
-  $sw = [Diagnostics.Stopwatch]::StartNew()
 
   #main task
   #create users based on csv date
@@ -528,8 +527,211 @@ function Bulk-UserCreate()
         Write-Host "$($SAM)      `t$($Result)`t`t$($Result2)      `t$($UserpathOU)     `t`t$($SubOU)"
   }
   Write-Host ""
-  Write-Host "Finished creating new users and adding them to the correct OU and group(s)`n"
+  Write-Host " *** Finished creating new users and adding them to the correct OU *** `n"
+  Set-Group
   Set-Manager
+}
+
+
+function Set-Group()
+{
+
+  #import data
+  $Users = Import-Csv -Delimiter ";" -Path "personeel.csv"
+
+  Write-Host "Setting Group(s) for users`n"
+  Write-Host "SAM      `tGroup/OU     `t`tSubgroup"
+  Write-Host "---      `t--------     `t`t--------"
+  #loop through all users
+  foreach ($User in $Users)
+  {
+      $Displayname = $User.Voornaam + " " + $User.Naam
+      $UserFirstname = $User.Naam
+      $UserLastname = $User.Voornaam
+      $UserAccount = $User.Account
+      $SAM = $UserAccount
+      $UPN = "$($SAM)@POLIFORMADL.com"
+      $OU = ""
+      $DistinguishedName = ""
+      $BossName = ""
+
+      #find ou
+      #$Manager = $User.Manager
+      #$IT = $User.IT
+      #$Boekhouding =  $User.Boekhouding
+      #$Logistiek = $User.Logistiek
+      #$ImportExport = $User.ImportExport
+
+      $Manager = $User.Directie
+      $IT = $User.Administratie
+      $Boekhouding =  $User.Automatisering
+      $Logistiek = $User.Productie
+      $ImportExport = $User.Staf
+
+
+
+        $DistinguishedName = "$($DistinguishedName)OU=PFAfdelingen,DC=POLIFORMA,DC=COM,"
+
+        $Result = ""
+        $Result2 = ""
+
+
+        if (dsquery user -samid $SAM)
+        {
+          $Result = ""
+
+          #assign to the correct principal group
+          $UserpathOU = ""
+          $Boss = "False"
+          $countDepartments = 0
+
+          if ($Manager -eq "X")
+          {
+            $UserpathOU = "Directie"
+            $DistinguishedName = "$($DistinguishedName)OU=$($UserpathOU),"
+            $Boss = "True"
+
+            Set-ADGroup -Add:@{'Member'="CN=$($Displayname),OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM"} -Identity:"CN=$($UserpathOU),OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Server:"DLSV1.POLIFORMADL.COM"
+            $Result = $UserpathOU
+          }
+          else
+          {
+              if ($ImportExport -eq "X")
+              {
+                $UserpathOU = "Staf"
+                $DistinguishedName = "$($DistinguishedName)OU=$($UserpathOU),"
+                $countDepartments = $countDepartments + 1
+              }
+              if ($Logistiek -eq "X")
+              {
+                $UserpathOU = "Productie"
+                $DistinguishedName = "$($DistinguishedName)OU=$($UserpathOU),"
+                $countDepartments = $countDepartments + 1
+              }
+              if ($Boekhouding -eq "X")
+              {
+                $UserpathOU = "Automatisering"
+                $DistinguishedName = "$($DistinguishedName)OU=$($UserpathOU),"
+                $countDepartments = $countDepartments + 1
+              }
+              if ($IT -eq "X")
+              {
+                $UserpathOU = "Administratie"
+                $DistinguishedName = "$($DistinguishedName)OU=$($UserpathOU),"
+                $countDepartments = $countDepartments + 1
+              }
+              Set-ADGroup -Add:@{'Member'="CN=$($Displayname),OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM"} -Identity:"CN=$($UserpathOU),OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Server:"DLSV1.POLIFORMADL.COM"
+              $Result = $UserpathOU
+          }
+
+
+          #assigning to possible (sub) groups
+          $UserpathOU = ""
+          $Boss = "False"
+          $SubOU = ""
+          if ($Manager -eq "X")
+          {
+            $UserpathOU = "Directie"
+            $DistinguishedName = "$($DistinguishedName)OU=$($UserpathOU),"
+            $Boss = "True"
+            Add-ADPrincipalGroupMembership -Identity:"CN=$($Displayname),OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -MemberOf:"CN=$($UserpathOU),OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Server:"DLSV1.POLIFORMADL.COM"
+            $countDepartments = $countDepartments + 1
+
+            if ($ImportExport -eq "X")
+            {
+              $SubOU = "Staf"
+              $DistinguishedName = "OU=$($UserpathOU),"
+              Add-ADPrincipalGroupMembership -Identity:"CN=$($Displayname),OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -MemberOf:"CN=$($SubOU),OU=$($SubOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Server:"DLSV1.POLIFORMADL.COM"
+              $countDepartments = $countDepartments + 1
+              #Set-ADGroup -Identity:"CN=Directie,OU=Directie,OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -ManagedBy:"CN=Bert Laplasse,OU=Directie,OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Server:"DLSV1.POLIFORMADL.COM"
+              Set-ADGroup -Identity:"CN=$($SubOU),OU=$($SubOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -ManagedBy:"CN=$($Displayname),OU=Directie,OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Server:"DLSV1.POLIFORMADL.COM"
+              $Result2 = $SubOU
+            }
+            if ($Logistiek -eq "X")
+            {
+              $SubOU = "Productie"
+              $DistinguishedName = "OU=$($UserpathOU),"
+              Add-ADPrincipalGroupMembership -Identity:"CN=$($Displayname),OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -MemberOf:"CN=$($SubOU),OU=$($SubOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Server:"DLSV1.POLIFORMADL.COM"
+              $countDepartments = $countDepartments + 1
+              Set-ADGroup -Identity:"CN=$($SubOU),OU=$($SubOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -ManagedBy:"CN=$($Displayname),OU=Directie,OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Server:"DLSV1.POLIFORMADL.COM"
+              $Result2 = $SubOU
+            }
+            if ($Boekhouding -eq "X")
+            {
+              $SubOU = "Automatisering"
+              $DistinguishedName = "OU=$($UserpathOU),"
+              Add-ADPrincipalGroupMembership -Identity:"CN=$($Displayname),OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -MemberOf:"CN=$($SubOU),OU=$($SubOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Server:"DLSV1.POLIFORMADL.COM"
+              $countDepartments = $countDepartments + 1
+              Set-ADGroup -Identity:"CN=$($SubOU),OU=$($SubOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -ManagedBy:"CN=$($Displayname),OU=Directie,OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Server:"DLSV1.POLIFORMADL.COM"
+              $Result2 = $SubOU
+            }
+            if ($IT -eq "X")
+            {
+              $SubOU = "Administratie"
+              $DistinguishedName = "OU=$($UserpathOU),"
+              Add-ADPrincipalGroupMembership -Identity:"CN=$($Displayname),OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -MemberOf:"CN=$($SubOU),OU=$($SubOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Server:"DLSV1.POLIFORMADL.COM"
+              $countDepartments = $countDepartments + 1
+              Set-ADGroup -Identity:"CN=$($SubOU),OU=$($SubOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -ManagedBy:"CN=$($Displayname),OU=Directie,OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Server:"DLSV1.POLIFORMADL.COM"
+              $Result2 = $SubOU
+            }
+
+
+
+          }
+          else
+          {
+
+              if ($ImportExport -eq "X")
+              {
+                $UserpathOU = "Staf"
+                $DistinguishedName = "$($DistinguishedName)OU=$($UserpathOU),"
+              }
+              if ($Logistiek -eq "X")
+              {
+                $UserpathOU = "Productie"
+                $DistinguishedName = "$($DistinguishedName)OU=$($UserpathOU),"
+              }
+              if ($Boekhouding -eq "X")
+              {
+                $UserpathOU = "Automatisering"
+                $DistinguishedName = "$($DistinguishedName)OU=$($UserpathOU),"
+              }
+              if ($IT -eq "X")
+              {
+                $UserpathOU = "Administratie"
+                $DistinguishedName = "$($DistinguishedName)OU=$($UserpathOU),"
+              }
+
+              Add-ADPrincipalGroupMembership -Identity:"CN=$($Displayname),OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -MemberOf:"CN=$($UserpathOU),OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Server:"DLSV1.POLIFORMADL.COM"
+
+          }
+
+
+          #-----------------------------------------
+
+
+          #used to see if the big boss exists ($boss true and count 1)
+          if ($Manager -eq "X")
+          {
+            if ($countDepartments -eq 1)
+              {
+                $SubOU = "Directie"
+                Set-ADGroup -Identity:"CN=$($UserpathOU),OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -ManagedBy:"CN=$($Displayname),OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Server:"DLSV1.POLIFORMADL.COM"
+                #Set-ADUser -Identity:"CN=Linda Hombroeckx,OU=Productie,OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Replace:'manager'="CN=Bert Laplasse,OU=Directie,OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Server:"DLSV1.POLIFORMADL.COM"
+                #Set-ADUser -Identity:"CN=Linda Hombroeckx,OU=Productie,OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Manager:$null -Server:"DLSV1.POLIFORMADL.COM"
+                #Get-ADUser -SearchBase "OU=$($UserpathOU),dc=POLIFORMADL,dc=COM" -Filter * -ResultSetSize 5000 | Select Name,SamAccountName
+                #Write-Host "Setting manager $($Displayname) for users in $($SubOU) "
+                #Get-ADUser -SearchBase "OU=$($UserpathOU),OU=PFAfdelingen,dc=POLIFORMADL,dc=COM" -Filter * -properties * -ResultSetSize 5000 | select SAMAccountName # Set-ADUser -Identity:"CN=Linda Hombroeckx,OU=Productie,OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Manager:$null -Server:"DLSV1.POLIFORMADL.COM"
+
+              }
+          }
+    }
+
+        Write-Host "$($SAM)      `t$($Result)      `t`t$($Result2)"
+  }
+  Write-Host ""
+  Write-Host " *** Finished adding users to the correct group(s) *** `n"
+
 }
 
 function Set-Manager()
@@ -672,7 +874,7 @@ function Set-Manager()
             }
   }
   Write-Host ""
-  Write-Host "Finished setting managers for all users"
+  Write-Host " *** Finished setting managers for all users *** "
 }
 
 
@@ -795,5 +997,5 @@ switch ($Menu)
 
     $sw.Stop()
     $time_elapsed = $sw.Elapsed.TotalSeconds
-    Write-Host "Task completed in "$time_elapsed" seconds."
+    Write-Host " *** Task completed in "$time_elapsed" seconds. ***"
     Log-Action

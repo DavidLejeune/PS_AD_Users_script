@@ -27,3 +27,4 @@ Date,UserID,LogDescription
 10/4/2016 11:57:53 PM,David,Succeeded in adding to multiple groups (+correct principal),
 10/5/2016 12:26:51 PM,David,every group is assigned managed by (must assign to individual users now),
 10/5/2016 8:19:07 PM,David,Assigned all users in ou a manager,
+10/5/2016 9:22:35 PM,David,split up main procedure,
