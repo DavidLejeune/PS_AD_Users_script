@@ -198,3 +198,5 @@ Date,UserID,Action,Runtime
 5/10/2016 1:28:10,Administrator,Bulk create User from CSV,34.5312557,
 5/10/2016 1:41:48,Administrator,Bulk delete User from CSV,9.060574,
 5/10/2016 1:42:18,Administrator,Bulk create User from CSV,12.7777239,
+5/10/2016 2:08:17,Administrator,Bulk delete User from CSV,9.9410841,
+5/10/2016 2:09:02,Administrator,Bulk create User from CSV,36.1654231,

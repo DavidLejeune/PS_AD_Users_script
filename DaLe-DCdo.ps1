@@ -272,8 +272,8 @@ function Bulk-UserCreate()
 
   Write-Host "Crunching data like a boss`n"
   Write-Host "Get ready for the magic ...`n"
-  Write-Host "Account      `tSAM      `tExists?      `t`tAction     `t`t`tOU`t`t     `tSubgroup"
-  Write-Host "-------      `t---      `t-------   `t`t------     `t`t`t--`t`t     `t--------"
+  Write-Host "SAM      `tExists?      `t`tAction     `t`t`tOU`t`t     `tSubgroup"
+  Write-Host "---      `t-------   `t`t------     `t`t`t--`t`t     `t--------"
 
   #loop through all users
   foreach ($User in $Users)
@@ -514,7 +514,7 @@ function Bulk-UserCreate()
           }
     }
 
-        Write-Host "$($UserAccount)      `t$($SAM)      `t$($Result)`t`t$($Result2)      `t$($UserpathOU)     `t`t$($SubOU)"
+        Write-Host "$($SAM)      `t$($Result)`t`t$($Result2)      `t$($UserpathOU)     `t`t$($SubOU)"
   }
   Write-Host ""
   Write-Host "Finished reading csv file"
