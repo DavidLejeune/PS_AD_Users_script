@@ -444,6 +444,7 @@ function Bulk-UserCreate()
               $DistinguishedName = "OU=$($UserpathOU),"
               Add-ADPrincipalGroupMembership -Identity:"CN=$($Displayname),OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -MemberOf:"CN=$($SubOU),OU=$($SubOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Server:"DLSV1.POLIFORMADL.COM"
               $countDepartments = $countDepartments + 1
+              #Set-ADGroup -Identity:"CN=Directie,OU=Directie,OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -ManagedBy:"CN=Bert Laplasse,OU=Directie,OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Server:"DLSV1.POLIFORMADL.COM"
             }
             if ($Logistiek -eq "X")
             {
@@ -508,6 +509,7 @@ function Bulk-UserCreate()
             if ($countDepartments -eq 1)
             {
                 $SubOU = "Boss of Bosses"
+                Set-ADGroup -Identity:"CN=$($UserpathOU),OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -ManagedBy:"CN=$($Displayname),OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Server:"DLSV1.POLIFORMADL.COM"
             }
           }
     }
