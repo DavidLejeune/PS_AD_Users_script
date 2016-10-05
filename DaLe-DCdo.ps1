@@ -528,7 +528,7 @@ function Bulk-UserCreate()
         Write-Host "$($SAM)      `t$($Result)`t`t$($Result2)      `t$($UserpathOU)     `t`t$($SubOU)"
   }
   Write-Host ""
-  Write-Host "Finished creating new users`n"
+  Write-Host "Finished creating new users and adding them to the correct OU and group(s)`n"
   Set-Manager
 }
 
@@ -538,9 +538,16 @@ function Set-Manager()
   #import data
   $Users = Import-Csv -Delimiter ";" -Path "personeel.csv"
 
-  Write-Host "Finding Managers`n"
-  Write-Host "SAM      `tManager of"
-  Write-Host "---      `t----------"
+  Write-Host "Setting manager for OU's`n"
+  Write-Host "SAM      `tManager of      `t`tAction"
+  Write-Host "---      `t----------      `t`t------"
+
+  $manDirectie = ""
+  $manAdministratie = ""
+  $manBoekhouding = ""
+  $manStaf = ""
+  $manLogistiek = ""
+
 
   #loop through all users
   foreach ($User in $Users)
@@ -576,7 +583,7 @@ function Set-Manager()
 
         $Result = ""
         $Result2 = ""
-
+        $countDepartments = 0
 
           $UserpathOU = ""
           $Boss = "False"
@@ -595,25 +602,40 @@ function Set-Manager()
               $DistinguishedName = "OU=$($UserpathOU),"
               $countDepartments = $countDepartments + 1
               #Set-ADGroup -Identity:"CN=Directie,OU=Directie,OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -ManagedBy:"CN=Bert Laplasse,OU=Directie,OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Server:"DLSV1.POLIFORMADL.COM"
-
+              $manStaf = $Displayname
+              Get-ADUser -SearchBase "OU=$($SubOU),OU=PFAfdelingen,dc=POLIFORMADL,dc=COM" -Filter * -properties * -ResultSetSize 5000 | Set-ADUser  -Manager "$($SAM)" #-Identity:"$($_.SAMAccountName)" -Manager  #-Server:"DLSV1.POLIFORMADL.COM"
+              $Result = "Managers set for users in OU"
             }
+
             if ($Logistiek -eq "X")
             {
               $SubOU = "Productie"
               $DistinguishedName = "OU=$($UserpathOU),"
               $countDepartments = $countDepartments + 1
+              $manLogistiek = $Displayname
+              Get-ADUser -SearchBase "OU=$($SubOU),OU=PFAfdelingen,dc=POLIFORMADL,dc=COM" -Filter * -properties * -ResultSetSize 5000 | Set-ADUser  -Manager "$($SAM)" #-Identity:"$($_.SAMAccountName)" -Manager  #-Server:"DLSV1.POLIFORMADL.COM"
+              $Result = "Managers set for users in OU"
+
             }
             if ($Boekhouding -eq "X")
             {
               $SubOU = "Automatisering"
               $DistinguishedName = "OU=$($UserpathOU),"
               $countDepartments = $countDepartments + 1
+              $manBoekhouding = $Displayname
+              Get-ADUser -SearchBase "OU=$($SubOU),OU=PFAfdelingen,dc=POLIFORMADL,dc=COM" -Filter * -properties * -ResultSetSize 5000 | Set-ADUser  -Manager "$($SAM)" #-Identity:"$($_.SAMAccountName)" -Manager  #-Server:"DLSV1.POLIFORMADL.COM"
+              $Result = "Managers set for users in OU"
+
             }
             if ($IT -eq "X")
             {
               $SubOU = "Administratie"
               $DistinguishedName = "OU=$($UserpathOU),"
               $countDepartments = $countDepartments + 1
+              $manAdministratie = $Displayname
+              Get-ADUser -SearchBase "OU=$($SubOU),OU=PFAfdelingen,dc=POLIFORMADL,dc=COM" -Filter * -properties * -ResultSetSize 5000 | Set-ADUser  -Manager "$($SAM)" #-Identity:"$($_.SAMAccountName)" -Manager  #-Server:"DLSV1.POLIFORMADL.COM"
+              $Result = "Managers set for users in OU"
+
             }
 
 
@@ -621,28 +643,6 @@ function Set-Manager()
           }
           else
           {
-
-              if ($ImportExport -eq "X")
-              {
-                $UserpathOU = "Staf"
-                $DistinguishedName = "$($DistinguishedName)OU=$($UserpathOU),"
-              }
-              if ($Logistiek -eq "X")
-              {
-                $UserpathOU = "Productie"
-                $DistinguishedName = "$($DistinguishedName)OU=$($UserpathOU),"
-              }
-              if ($Boekhouding -eq "X")
-              {
-                $UserpathOU = "Automatisering"
-                $DistinguishedName = "$($DistinguishedName)OU=$($UserpathOU),"
-              }
-              if ($IT -eq "X")
-              {
-                $UserpathOU = "Administratie"
-                $DistinguishedName = "$($DistinguishedName)OU=$($UserpathOU),"
-              }
-
 
           }
 
@@ -652,12 +652,14 @@ function Set-Manager()
             if ($countDepartments -eq 1)
               {
                 $SubOU = "Directie"
-                Write-Host "haha"
+                $manDirectie = $Displayname
                 #Set-ADUser -Identity:"CN=Linda Hombroeckx,OU=Productie,OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Replace:'manager'="CN=Bert Laplasse,OU=Directie,OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Server:"DLSV1.POLIFORMADL.COM"
                 #Set-ADUser -Identity:"CN=Linda Hombroeckx,OU=Productie,OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Manager:$null -Server:"DLSV1.POLIFORMADL.COM"
                 #Get-ADUser -SearchBase "OU=$($UserpathOU),dc=POLIFORMADL,dc=COM" -Filter * -ResultSetSize 5000 | Select Name,SamAccountName
                 #Write-Host "Setting manager $($Displayname) for users in $($SubOU) "
                 #Get-ADUser -SearchBase "OU=$($UserpathOU),OU=PFAfdelingen,dc=POLIFORMADL,dc=COM" -Filter * -properties * -ResultSetSize 5000 | select SAMAccountName # Set-ADUser -Identity:"CN=Linda Hombroeckx,OU=Productie,OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Manager:$null -Server:"DLSV1.POLIFORMADL.COM"
+                Get-ADUser -SearchBase "OU=$($SubOU),OU=PFAfdelingen,dc=POLIFORMADL,dc=COM" -Filter * -properties * -ResultSetSize 5000 | Set-ADUser  -Manager "$($SAM)" #-Identity:"$($_.SAMAccountName)" -Manager  #-Server:"DLSV1.POLIFORMADL.COM"
+                $Result = "Manager set for all users in OU"
 
               }
           }
@@ -666,7 +668,7 @@ function Set-Manager()
           if ($SubOU -eq "")
           {}
             else{
-              Write-Host "$($SAM)      `t$($SubOU)"
+              Write-Host "$($SAM)      `t$($SubOU)  `t`t`t$($Result)"
             }
   }
   Write-Host ""
