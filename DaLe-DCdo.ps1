@@ -585,6 +585,11 @@ function Set-Group()
 
         if (dsquery user -samid $SAM)
         {
+
+          $DisableIni = $SAM
+          $DisableUser = Get-QADUser $DisableIni
+          $DisableUser.memberOf | Get-QADGroup | where {$_.name -notmatch '^users|domain users$'} | Remove-QADGroupMember -member $DisableIni
+
           $Result = ""
 
           #assign to the correct principal group
