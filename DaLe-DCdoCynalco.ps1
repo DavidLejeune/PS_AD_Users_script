@@ -532,6 +532,21 @@ function Bulk-UserManagement()
   Set-Manager
 }
 
+function Remove-FromAllGroups()
+{
+  Write-Host "Removing users from their groups`n"
+  Get-ADGroupMember "Management" | ForEach-Object {Remove-ADGroupMember "Management" $_ -Confirm:$false}
+  Get-ADGroupMember "Management"
+  Get-ADGroupMember "IT" | ForEach-Object {Remove-ADGroupMember "IT" $_ -Confirm:$false}
+  Get-ADGroupMember "IT"
+  Get-ADGroupMember "Boekhouding" | ForEach-Object {Remove-ADGroupMember "Boekhouding" $_ -Confirm:$false}
+  Get-ADGroupMember "Boekhouding"
+  Get-ADGroupMember "ImportExport" | ForEach-Object {Remove-ADGroupMember "ImportExport" $_ -Confirm:$false}
+  Get-ADGroupMember "ImportExport"
+  Get-ADGroupMember "Logistiek" | ForEach-Object {Remove-ADGroupMember "Logistiek" $_ -Confirm:$false}
+  Get-ADGroupMember "Logistiek"
+
+}
 
 function Set-Group()
 {

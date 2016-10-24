@@ -20,6 +20,7 @@
 
 #------------------------------------------------------------------------------
 #Imports
+
 Import-Module ActiveDirectory
 
 #------------------------------------------------------------------------------
@@ -586,10 +587,8 @@ function Set-Group()
         if (dsquery user -samid $SAM)
         {
 
-          $DisableIni = $SAM
-          $DisableUser = Get-QADUser $DisableIni
-          $DisableUser.memberOf | Get-QADGroup | where {$_.name -notmatch '^users|domain users$'} | Remove-QADGroupMember -member $DisableIni
-
+          #Get-ADGroupMember "test_group" | ForEach-Object {Remove-ADGroupMember "test_group" $_ -Confirm:$false}
+          
           $Result = ""
 
           #assign to the correct principal group
