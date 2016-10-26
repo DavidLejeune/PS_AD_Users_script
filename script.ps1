@@ -1,6 +1,6 @@
 #OU aanmaken
 
-Import-CSV C:\personeel.csv -Delimiter ";" |
+Import-CSV personeel.csv -Delimiter ";" |
 Get-Member -MemberType NoteProperty |
 Where-Object{$_.name -ne "Voornaam" -and $_.name -ne "Naam" -and $_.name -ne "Account" } |
 ForEach-Object {
@@ -15,54 +15,45 @@ ForEach-Object {
 
 #Merging OU and Accounts in CSV file
 
-Import-CSV C:\personeel.csv -Delimiter ";" |
+Import-CSV personeel.csv -Delimiter ";" |
 Select Account, Voornaam, Naam, @{n='OU'; e={
-    if($_.Manager -eq "X"){ "Manager" } ;
-    if($_.IT -eq "X"){"IT"} ;
-    if($_.Boekhouding -eq "X"){ "Boekhouding" } ;
-    if($_.Logistiek -eq "X"){ "Logistiek" };
-    if($_.ImportExport -eq "X"){ "ImportExport" } ;
+    if($_.Directie -eq "X"){ "Directie" } ;
+    if($_.Administratie -eq "X"){"Administratie"} ;
+    if($_.Automatisering -eq "X"){ "Automatisering" } ;
+    if($_.Productie -eq "X"){ "Productie" };
+    if($_.Staf -eq "X"){ "Staf" } ;
     }} |
-Export-CSV C:\personeel1.csv -Delimiter ";"
-
-
-
-
-
-
-
-
-
-
-
+Export-CSV personeel1.csv -Delimiter ";"
 
 
 
 #Add the users
-Import-CSV C:\personeel1.csv -Delimiter ";" |
-Foreach-Object {
-    try{
-        $profilepath = "\\SRV1\UserProfiles\" + $_.Account
-        $homedirectory = "\\SRV1\UserFolders\" + $_.Account
-        New-ADUser -Name $_.Account -AccountPassword (ConvertTo-SecureString "Wachtwoord123" -AsPlainText -force) -Enabled 1 -DisplayName $_.Account -SurName $_.Naam -GivenName $_.Voornaam
-        $HomeDrive=’U:’
-        $UserRoot=’\\SRV1\UserFolders\’
-        $HomeDirectory=$UserRoot+$_.Account
-        SET-ADUSER $_.Account –HomeDrive $HomeDrive –HomeDirectory $HomeDirectory
-        NEW-ITEM –path $HomeDirectory -type directory -force
-    }
-    catch {
-
-    }
+Import-CSV personeel1.csv -Delimiter ";" |
+ForEach-Object {
+  try{
+      $profilepath = "\\DLSV1\UserProfiles\" + $_.Account
+      $homedirectory = "\\DLSV1\UserFolders\" + $_.Account
+      New-ADUser -Name $_.Account -AccountPassword (ConvertTo-SecureString "Wachtwoord123" -AsPlainText -force) -Enabled 1 -DisplayName $_.Account -SurName $_.Naam -GivenName $_.Voornaam
+      $HomeDrive="F:"
+      $UserRoot="\\DLSV1\UserFolders\"
+      $HomeDirectory=$UserRoot+$_.Account
+      SET-ADUSER $_.Account –HomeDrive $HomeDrive –HomeDirectory $HomeDirectory
+      #NEW-ITEM –path $HomeDirectory -type directory -force
+  }
+  catch {
+    'Dont know what to do with the user'
+  }
 }
+
+
 
 #Add groups
 
-Import-CSV C:\personeel1.csv -Delimiter ";" |
+Import-CSV personeel1.csv -Delimiter ";" |
 ForEach-Object {
     $ousingle,$group = $_.OU.split(" ",2)
-    $ou = "OU=" + $ousingle + ", DC=smg31,DC=be"
-    $grouploc = "OU=" +$group + ", DC=smg31,DC=be"
+    $ou = "OU=" + $ousingle + ",OU=PFAfdelingen, DC=POLIFORMADL,DC=COM"
+    $grouploc = "OU=" +$group + ",OU=PFAfdelingen, DC=POLIFORMADL,DC=COM"
     try {
         New-ADGroup $ousingle DomainLocal
         New-ADGroup $group  DomainLocal
@@ -80,18 +71,18 @@ ForEach-Object {
 
 #move groups to OU
 
-Import-CSV C:\personeel.csv -Delimiter ";" |
+Import-CSV personeel.csv -Delimiter ";" |
 Get-Member -MemberType NoteProperty|
 where { $_.name -ne "Voornaam" -And $_.name -ne "Naam" -and $_.name -ne "Account" } |
 foreach{
     $filter = "(name=" + $_.name +")"
-    $filter1 = "OU=" + $_.name + ",DC=smg31,DC=be"
+    $filter1 = "OU=" + $_.name + ",DC=POLIFORMADL,DC=COM"
     Get-ADObject -LDAPFilter $filter | where { $_.ObjectClass -eq "group" } |
     Move-ADObject -TargetPath $filter1
 }
 
 #Add members to groups and managers
-Import-CSV C:\personeel1.csv -Delimiter ";" |
+Import-CSV personeel1.csv -Delimiter ";" |
 ForEach-Object {
     $users = Get-ADUser $_.Account -Properties MemberOf
     foreach ($user in $users) {
@@ -105,11 +96,11 @@ ForEach-Object {
 
 }
 
-Import-CSV C:\personeel1.csv -Delimiter ";" |
+Import-CSV personeel1.csv -Delimiter ";" |
 ForEach-Object {
     $ousingle,$group = $_.OU.split(" ",2)
-    $ou = "OU=" + $ousingle + ", DC=smg31,DC=be"
-    $grouploc = "OU=" +$group + ", DC=smg31,DC=be"
+    $ou = "OU=" + $ousingle + ", DC=POLIFORMADL,DC=COM"
+    $grouploc = "OU=" +$group + ", DC=POLIFORMADL,DC=COM"
 
     try{
         Add-ADGroupMember -Identity $group -Members $_.Account

@@ -222,7 +222,7 @@ function Bulk-UserDelete()
 
 
 
-      $DistinguishedName = "$($DistinguishedName)OU=PFAfdelingen,DC=POLIFORMA,DC=COM,"
+      $DistinguishedName = "$($DistinguishedName)OU=PFAfdelingen,DC=POLIFORMADL,DC=COM,"
 
 
 
@@ -270,6 +270,8 @@ function Bulk-UserDelete()
 
 function Bulk-UserManagement()
 {
+  #first clear all the users in groups
+  #Clear-Groups
 
   #main task
   #create users based on csv date
@@ -279,8 +281,8 @@ function Bulk-UserManagement()
   Write-Host "Crunching data like a boss"
   Write-Host "Get ready for the magic ...`n"
   Write-Host "Creating users`n"
-  Write-Host "SAM      `tExists?      `t`tAction     `t`t`tOU`t`t     `tSubgroup"
-  Write-Host "---      `t-------   `t`t------     `t`t`t--`t`t     `t--------"
+  Write-Host "SAM      `tExists?      `t`tAction     `t`t`t`t`tOU`t`t     `tSubgroup"
+  Write-Host "---      `t-------   `t`t------     `t`t`t`t`t--`t`t     `t--------"
 
   #loop through all users
   foreach ($User in $Users)
@@ -362,7 +364,7 @@ function Bulk-UserManagement()
 #  $DistinguishedName = "$($DistinguishedName)OU=Manager,"
 #}
 
-        $DistinguishedName = "$($DistinguishedName)OU=PFAfdelingen,DC=POLIFORMA,DC=COM,"
+        $DistinguishedName = "$($DistinguishedName)OU=PFAfdelingen,DC=POLIFORMADL,DC=COM,"
 
         $Result = ""
         $Result2 = ""
@@ -370,7 +372,20 @@ function Bulk-UserManagement()
         if (dsquery user -samid $SAM)
         {
           $Result = "User Found"
-          $Result2 =  "No creation required"
+
+          # if user exists remove them from groups and retarget so an update puts them in the correct path
+          $user = "CN=$($UserpathOU),OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM"
+          Get-ADPrincipalGroupMembership -Identity $user | where {$_.Name -ne "Domain Users"} | % {Remove-ADPrincipalGroupMembership -Identity $user -MemberOf $_}
+          #Get-ADGroupMembership -Identity $user | where {$_.Name -ne "Domain Users"} | % {Remove-ADGroupMembers -Identity $user -MemberOf $_}
+          #Set-ADGroup -Identity:$user -Remove:@{'Member'="CN=Sammy Tanghe,OU=Automatisering,OU=PFAfdelingen,DC=POLIFORMADL,DC=COM"} -Server:"DLSV1.POLIFORMADL.COM"
+          #$ADgroups = Get-ADPrincipalGroupMembership -Identity $user | where {$_.Name -ne "Domain Users"} | Remove-ADPrincipalGroupMembership -Identity "$user" -MemberOf $ADgroups -Confirm:$false -whatif
+          # update a user path
+          # Move-ADObject 'CN=myuser,CN=Users,DC=mydomain,DC=com' -TargetPath 'OU=mynewou,DC=mydomain,DC=com'
+          # or
+          Get-ADUser $SAM| Move-ADObject -TargetPath "OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM"
+          $Result2 =  "User marked for update"
+          $Result2 =  "Retarget path - Removed principalgroup"
+
         }
         else
         {
@@ -536,8 +551,78 @@ function Bulk-UserManagement()
   }
   Write-Host ""
   Write-Host " *** Finished creating new users and adding them to the correct OU *** `n"
+  Clear-Groups
   Set-Group
   Set-Manager
+}
+
+function Clear-Groups()
+{
+  Import-Module ActiveDirectory
+
+  Write-Host "Removing all users from groups"
+  Write-Host ""
+
+  #Choose Organizational Unit
+  $Count=0
+  $UserpathOU="Directie"
+  $SearchBase = "OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM"
+  $Users = Get-ADUser -filter * -SearchBase $SearchBase -Properties MemberOf
+  ForEach($User in $Users){
+      $User.MemberOf | Remove-ADGroupMember -Member $User -Confirm:$false
+      $Count=$Count+1
+  }
+  Write-Host "Removed $($Count) user(s) from $($UserpathOU)"
+
+
+  #Choose Organizational Unit
+  $Count=0
+  $UserpathOU="Administratie"
+  $SearchBase = "OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM"
+  $Users = Get-ADUser -filter * -SearchBase $SearchBase -Properties MemberOf
+  ForEach($User in $Users){
+      $User.MemberOf | Remove-ADGroupMember -Member $User -Confirm:$false
+      $Count=$Count+1
+  }
+  Write-Host "Removed $($Count) user(s) from $($UserpathOU)"
+
+
+  #Choose Organizational Unit
+  $Count=0
+  $UserpathOU="Automatisering"
+  $SearchBase = "OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM"
+  $Users = Get-ADUser -filter * -SearchBase $SearchBase -Properties MemberOf
+  ForEach($User in $Users){
+      $User.MemberOf | Remove-ADGroupMember -Member $User -Confirm:$false
+      $Count=$Count+1
+  }
+  Write-Host "Removed $($Count) user(s) from $($UserpathOU)"
+
+
+  #Choose Organizational Unit
+  $Count=0
+  $UserpathOU="Productie"
+  $SearchBase = "OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM"
+  $Users = Get-ADUser -filter * -SearchBase $SearchBase -Properties MemberOf
+  ForEach($User in $Users){
+      $User.MemberOf | Remove-ADGroupMember -Member $User -Confirm:$false
+      $Count=$Count+1
+  }
+  Write-Host "Removed $($Count) user(s) from $($UserpathOU)"
+
+  #Choose Organizational Unit
+  $Count=0
+  $UserpathOU="Staf"
+  $SearchBase = "OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM"
+  $Users = Get-ADUser -filter * -SearchBase $SearchBase -Properties MemberOf
+  ForEach($User in $Users){
+      $User.MemberOf | Remove-ADGroupMember -Member $User -Confirm:$false
+      $Count=$Count+1
+  }
+  Write-Host "Removed $($Count) user(s) from $($UserpathOU)"
+
+  Write-Host ""
+  Write-Host " *** Finished clearing all users in groups *** `n"
 }
 
 
@@ -588,7 +673,7 @@ function Set-Group()
         {
 
           #Get-ADGroupMember "test_group" | ForEach-Object {Remove-ADGroupMember "test_group" $_ -Confirm:$false}
-          
+
           $Result = ""
 
           #assign to the correct principal group

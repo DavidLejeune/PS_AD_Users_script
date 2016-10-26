@@ -1,0 +1,19 @@
+Set-ADUser -ChangePasswordAtLogon:$true -Identity:"CN=test test.,OU=Administratie,OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Server:"DLSV1.POLIFORMADL.COM" -SmartcardLogonRequired:$false
+
+
+Set-ADUser -Identity:"CN=Cordemans Tom,OU=Staf,OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Server:"DLSV1.POLIFORMADL.COM" -SmartcardLogonRequired:$false
+
+
+PS I:\> New-ADUser "user 8" -givenname "user" -Surname "8" -SamAccountName "user8" -UserPrincipalName "user8@POLIFORMADL.COM" -AccountPassword (Conver
+tTo-SecureString "Password123" -AsPlainText -Force) -path 'ou=Staf,DC=POLIFORMADL,DC=COM' -PassThru | Enable-ADAccount
+
+
+
+
+
+New-ADUser -Department:"Staf" -DisplayName:"User 9" -GivenName:"User" -Name:"User 9" -Path:"OU=Staf,OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -SamAccountName:"user9" -Server:"DLSV1.POLIFORMADL.COM" -Surname:"9" -Title:"Medewerker" -Type:"user" -UserPrincipalName:"user9@POLIFORMADL.COM"
+# Set-ADAccountPassword -Identity:"CN=User 9,OU=Staf,OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -NewPassword:"System.Security.SecureString" -Reset:$true -Server:"DLSV1.POLIFORMADL.COM"
+Enable-ADAccount -Identity:"CN=User 9,OU=Staf,OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Server:"DLSV1.POLIFORMADL.COM"
+Set-ADAccountControl -AccountNotDelegated:$false -AllowReversiblePasswordEncryption:$false -CannotChangePassword:$false -DoesNotRequirePreAuth:$false -Identity:"CN=User 9,OU=Staf,OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -PasswordNeverExpires:$false -Server:"DLSV1.POLIFORMADL.COM" -UseDESKeyOnly:$false
+Set-ADUser -ChangePasswordAtLogon:$true -Identity:"CN=User 9,OU=Staf,OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -Server:"DLSV1.POLIFORMADL.COM" -SmartcardLogonRequired:$false
+Get-ADObject -LDAPFilter:"(objectClass=*)" -Properties:allowedChildClassesEffective,allowedChildClasses,lastKnownParent,sAMAccountType,systemFlags,userAccountControl,displayName,description,whenChanged,location,managedBy,memberOf,primaryGroupID,objectSid,msDS-User-Account-Control-Computed,sAMAccountName,lastLogonTimestamp,lastLogoff,mail,accountExpires,msDS-PhoneticCompanyName,msDS-PhoneticDepartment,msDS-PhoneticDisplayName,msDS-PhoneticFirstName,msDS-PhoneticLastName,pwdLastSet,operatingSystem,operatingSystemServicePack,operatingSystemVersion,telephoneNumber,physicalDeliveryOfficeName,department,company,manager,dNSHostName,groupType,c,l,employeeID,givenName,sn,title,st,postalCode,managedBy,userPrincipalName,isDeleted,msDS-PasswordSettingsPrecedence -ResultPageSize:"100" -ResultSetSize:"20201" -SearchBase:"CN=User 9,OU=Staf,OU=PFAfdelingen,DC=POLIFORMADL,DC=COM" -SearchScope:"Base" -Server:"DLSV1.POLIFORMADL.COM"
