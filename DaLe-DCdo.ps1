@@ -386,6 +386,7 @@ function Bulk-UserManagement()
           Get-ADUser $SAM| Set-ADUser -Department $UserpathOU
           $Result2 =  "User marked for update"
           $Result2 =  "Retarget path - Removed principalgroup"
+          $Result2 =  "Update path+principalgroup+department"
 
         }
         else
