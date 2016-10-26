@@ -114,7 +114,7 @@ function Show-Users()
 {
     $sw = [Diagnostics.Stopwatch]::StartNew()
     #log users and show them
-    Get-ADUser -SearchBase "OU=PFAfdelingen,dc=POLIFORMADL,dc=COM" -Filter * -properties * -ResultSetSize 5000 | select CN ,SAMAccountName, Department, Description , Title,UserPrincipalName, DistinguishedName, HomeDirectory, ProfilePath, Office, OfficePhone, Manager    | convertto-html | out-file ADUsers.html
+    Get-ADUser -SearchBase "OU=PFAfdelingen,dc=POLIFORMADL,dc=COM" -Filter * -properties * -ResultSetSize 5000 | select identity ,CN ,SAMAccountName, Department, Description , Title,UserPrincipalName, DistinguishedName, HomeDirectory, ProfilePath, Office, OfficePhone, Manager    | convertto-html | out-file ADUsers.html
     Get-ADUser -SearchBase "dc=POLIFORMADL,dc=COM" -Filter * -properties * -ResultSetSize 5000 | select DistinguishedName,SAMAccountName, Department | format-table -autosize
 }
 
@@ -383,6 +383,7 @@ function Bulk-UserManagement()
           # Move-ADObject 'CN=myuser,CN=Users,DC=mydomain,DC=com' -TargetPath 'OU=mynewou,DC=mydomain,DC=com'
           # or
           Get-ADUser $SAM| Move-ADObject -TargetPath "OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM"
+          Get-ADUser $SAM| Set-ADUser -Department $UserpathOU
           $Result2 =  "User marked for update"
           $Result2 =  "Retarget path - Removed principalgroup"
 
