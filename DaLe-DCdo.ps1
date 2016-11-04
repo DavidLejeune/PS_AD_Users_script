@@ -743,9 +743,19 @@ function Remove-UnfoundUser()
               }
               else
               {
-                Disable-ADaccount -identity $SAM_AD
-                $Result  = "User has been disabled"
-                Write-host $SAM_AD"    `t`t`t"$Result -ForegroundColor  Red
+                $ActiveUser = Get-ADUser -Identity $SAM_AD
+                if ($ActiveUser.Enabled -eq $True)
+                {
+                    Disable-ADaccount -identity $SAM_AD
+                    $Result  = "User has been disabled"
+                    Write-host $SAM_AD"    `t`t`t"$Result -ForegroundColor  Red
+                }
+                else{
+                    Disable-ADaccount -identity $SAM_AD
+                    $Result  = "User remains disabled"
+                    Write-host $SAM_AD"    `t`t`t"$Result -ForegroundColor  Green
+
+                }
 
               }
 
