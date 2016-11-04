@@ -446,7 +446,15 @@ function Bulk-UserManagement()
          # END OF BLOCK THAT HELPS DISPLAY ALL THE BEAUTIFUL STUFF
          ##################################################################
         }
-        Write-Host "$($SAM)      `t$($Result)`t`t$($Result2)`t$($UserpathOU)     `t`t$($SubOU)" -ForegroundColor Magenta
+        If ($Result -eq "User not found")
+        {
+          Write-Host "$($SAM)      `t$($Result)`t`t$($Result2)`t$($UserpathOU)     `t`t$($SubOU)" -ForegroundColor yellow
+        }
+        else
+        {
+          Write-Host "$($SAM)      `t$($Result)`t`t$($Result2)`t$($UserpathOU)     `t`t$($SubOU)" -ForegroundColor Magenta
+
+        }
   }
   Write-Host ""
   Write-Host " *** Finished creating new users and adding them to the correct OU *** `n"-ForegroundColor blue
