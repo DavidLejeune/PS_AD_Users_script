@@ -217,12 +217,14 @@ function Bulk-UserDelete()
 function Bulk-UserManagement()
 {
 
+  # first diable the user not found in csv
+  Remove-UnfoundUser
   #main task
   #create users based on csv date
   #import data
   $Users = Import-Csv -Delimiter ";" -Path "personeel.csv"
 
-  Write-Host "Crunching data like a boss"  -ForegroundColor red
+  Write-Host "`nCrunching data like a boss"  -ForegroundColor red
   Write-Host "Get ready for the magic ...`n"  -ForegroundColor red
   Write-Host "Creating users`n" -ForegroundColor white
   Write-Host "SAM      `tExists?      `t`tAction     `t`t`tOU`t`t     `tSubgroup"  -ForegroundColor yellow
@@ -682,6 +684,59 @@ function Set-Group()
   }
   Write-Host ""
   Write-Host " *** Finished adding users to the correct group(s) *** `n" -ForegroundColor blue
+
+}
+
+function Remove-UnfoundUser()
+{
+
+    #import data
+    $Users = Import-Csv -Delimiter ";" -Path "personeel.csv"
+
+    Write-Host "Disabling users not found in CSV`n" -ForegroundColor white
+    Write-Host "SAM          `t`t`tAction" -ForegroundColor yellow
+    Write-Host "---          `t`t`t------" -ForegroundColor yellow
+
+
+    $usersAD = Get-ADUser -SearchBase "ou=PFAfdelingen,dc=POLIFORMADL,dc=COM" -filter *
+     ForEach($userAD in $usersAD)
+        {
+          $SAM_AD = $userAD.SAMAccountName
+          $UsersCSV = Import-Csv -Delimiter ";" -Path "personeel.csv"
+          $found=$false
+          #loop through all users
+              foreach ($User in $UsersCSV)
+              {
+                  $Displayname = $User.Voornaam + " " + $User.Naam
+                  $UserFirstname = $User.Naam
+                  $UserLastname = $User.Voornaam
+                  $UserAccount = $User.Account
+                  $SAM = $UserAccount
+                  if ($SAM_AD -eq $SAM)
+                  {
+                    $found=$true
+                  }
+
+              }
+
+
+              if ($found -eq $true)
+              {
+                $Result  = "User remains active"
+                Write-host $SAM_AD"    `t`t`t"$Result -ForegroundColor white
+              }
+              else
+              {
+                Disable-ADaccount -identity $SAM
+                $Result  = "User has been disabled"
+                Write-host $SAM_AD"    `t`t`t"$Result -ForegroundColor  Red
+
+              }
+
+
+        }
+
+
 
 }
 
