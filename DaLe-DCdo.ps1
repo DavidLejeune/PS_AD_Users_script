@@ -129,9 +129,9 @@ function Bulk-UserDelete()
   $Users = Import-Csv -Delimiter ";" -Path "personeel.csv"
 
   #header of table
-  Write-Host "Get ready for the magic ...`n"
-  Write-Host "SAM      `tExists?      `t`tAction     `t`t`tOU"
-  Write-Host "---      `t-------   `t`t------     `t`t`t--"
+  Write-Host "Get ready for the magic ...`n" -ForegroundColor Gray
+  Write-Host "SAM      `tExists?      `t`tAction     `t`t`tOU" -ForegroundColor Yellow
+  Write-Host "---      `t-------   `t`t------     `t`t`t--" -ForegroundColor Yellow
 
   #loop through all users
   foreach ($User in $Users)
@@ -206,11 +206,11 @@ function Bulk-UserDelete()
           $Result = "User not found"
           $Result2 =  "No action required"
         }
-        Write-Host $SAM"      `t"$Result"`t`t"$Result2"      `t"$UserpathOU
+        Write-Host $SAM"      `t"$Result"`t`t"$Result2"      `t"$UserpathOU  -ForegroundColor Red
   }
 
   Write-Host ""
-  Write-Host " *** Finished bulk deleting users *** "
+  Write-Host " *** Finished bulk deleting users *** " -ForegroundColor cyan
 }
 
 function Bulk-UserManagement()
@@ -221,11 +221,11 @@ function Bulk-UserManagement()
   #import data
   $Users = Import-Csv -Delimiter ";" -Path "personeel.csv"
 
-  Write-Host "Crunching data like a boss"
-  Write-Host "Get ready for the magic ...`n"
-  Write-Host "Creating users`n"
-  Write-Host "SAM      `tExists?      `t`tAction     `t`t`t`t`tOU`t`t     `tSubgroup"
-  Write-Host "---      `t-------   `t`t------     `t`t`t`t`t--`t`t     `t--------"
+  Write-Host "Crunching data like a boss"  -ForegroundColor red
+  Write-Host "Get ready for the magic ...`n"  -ForegroundColor red
+  Write-Host "Creating users`n" -ForegroundColor red
+  Write-Host "SAM      `tExists?      `t`tAction     `t`t`tOU`t`t     `tSubgroup"  -ForegroundColor yellow
+  Write-Host "---      `t-------   `t`t------     `t`t`t--`t`t     `t--------" -ForegroundColor yellow
 
   #loop through all users
   foreach ($User in $Users)
@@ -283,7 +283,7 @@ function Bulk-UserManagement()
 
         if (dsquery user -samid $SAM)
         {
-          $Result = "User Found"
+          $Result = "User Found   "
 
           # if user exists remove them from groups and retarget so an update puts them in the correct path
           $user = "CN=$($UserpathOU),OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM"
@@ -292,7 +292,7 @@ function Bulk-UserManagement()
           Get-ADUser $SAM| Move-ADObject -TargetPath "OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM"
           # rename department
           Get-ADUser $SAM| Set-ADUser -Department $UserpathOU
-          $Result2 =  "Update path+principalgroup+department"
+          $Result2 =  "Update user                  "
         }
         else
         {
@@ -304,11 +304,11 @@ function Bulk-UserManagement()
           #Check after creation if user exists now
           if (dsquery user -samid $SAM)
           {
-            $Result2 = "User succesfully created              "
+            $Result2 = "User succesfully created     "
           }
           else
           {
-            $Result2 = "Unsuccesfull in creating user         "
+            $Result2 = "Unsuccesfull in creating user"
           }
 
           ##################################################################
@@ -443,7 +443,7 @@ function Bulk-UserManagement()
          # END OF BLOCK THAT HELPS DISPLAY ALL THE BEAUTIFUL STUFF
          ##################################################################
         }
-        Write-Host "$($SAM)      `t$($Result)`t`t$($Result2)      `t$($UserpathOU)     `t`t$($SubOU)"
+        Write-Host "$($SAM)      `t$($Result)`t`t$($Result2)`t$($UserpathOU)     `t`t$($SubOU)" -ForegroundColor Magenta
   }
   Write-Host ""
   Write-Host " *** Finished creating new users and adding them to the correct OU *** `n"
@@ -454,8 +454,18 @@ function Bulk-UserManagement()
 
 function Clear-Groups()
 {
-  Write-Host "Removing all users from groups"
-  Write-Host ""
+  Write-Host "Removing all users from groups" -ForegroundColor yellow
+  Write-Host "" -ForegroundColor yellow
+
+  #
+  #$groups = (list of groups)
+  #foreach($group in $groups){
+  #              $users=get-adgroupmember $group
+  #              foreach($user in $users){
+  #                                  get-aduser $user.name -properties enabled|if ($_.enabled -eq $false){remove-adgroupmember $group -member $_.name}
+  #                                                  }
+  #                  }
+  #           }
 
   #Choose Organizational Unit
   $Count=0
@@ -463,21 +473,34 @@ function Clear-Groups()
   $SearchBase = "OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM"
   $Users = Get-ADUser -filter * -SearchBase $SearchBase -Properties MemberOf
   ForEach($User in $Users){
-      $User.MemberOf | Remove-ADGroupMember -Member $User -Confirm:$false
-      $Count=$Count+1
+      if ($User.Enabled -eq $True) {
+        $User.MemberOf | Remove-ADGroupMember -Member $User -Confirm:$false
+        $Count=$Count+1
+      }
+      else
+      {
+
+      }
   }
-  Write-Host "Removed $($Count) user(s) from $($UserpathOU)"
+  #Get-ADGroupMember -identity "Directie" | get-aduser | Where {$_.Enabled -eq $true} | Remove-ADGroupMember -Member $_.SamAccountName -Confirm:$false
+  Write-Host "Removed $($Count) user(s) from $($UserpathOU)" -ForegroundColor red
 
   #Choose Organizational Unit
   $Count=0
   $UserpathOU="Administratie"
   $SearchBase = "OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM"
-  $Users = Get-ADUser -filter * -SearchBase $SearchBase -Properties MemberOf
+  $Users = Get-ADUser -filter * -SearchBase $SearchBase -Properties MemberOf Enabled
   ForEach($User in $Users){
-      $User.MemberOf | Remove-ADGroupMember -Member $User -Confirm:$false
-      $Count=$Count+1
+      if ($User.Enabled -eq $True) {
+        $User.MemberOf | Remove-ADGroupMember -Member $User -Confirm:$false
+        $Count=$Count+1
+      }
+      else
+      {
+
+      }
   }
-  Write-Host "Removed $($Count) user(s) from $($UserpathOU)"
+  Write-Host "Removed $($Count) user(s) from $($UserpathOU)" -ForegroundColor red
 
   #Choose Organizational Unit
   $Count=0
@@ -485,10 +508,16 @@ function Clear-Groups()
   $SearchBase = "OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM"
   $Users = Get-ADUser -filter * -SearchBase $SearchBase -Properties MemberOf
   ForEach($User in $Users){
-      $User.MemberOf | Remove-ADGroupMember -Member $User -Confirm:$false
-      $Count=$Count+1
+      if ($User.Enabled -eq $True) {
+        $User.MemberOf | Remove-ADGroupMember -Member $User -Confirm:$false
+        $Count=$Count+1
+      }
+      else
+      {
+
+      }
   }
-  Write-Host "Removed $($Count) user(s) from $($UserpathOU)"
+  Write-Host "Removed $($Count) user(s) from $($UserpathOU)" -ForegroundColor red
 
   #Choose Organizational Unit
   $Count=0
@@ -496,10 +525,16 @@ function Clear-Groups()
   $SearchBase = "OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM"
   $Users = Get-ADUser -filter * -SearchBase $SearchBase -Properties MemberOf
   ForEach($User in $Users){
-      $User.MemberOf | Remove-ADGroupMember -Member $User -Confirm:$false
-      $Count=$Count+1
+      if ($User.Enabled -eq $True) {
+        $User.MemberOf | Remove-ADGroupMember -Member $User -Confirm:$false
+        $Count=$Count+1
+      }
+      else
+      {
+
+      }
   }
-  Write-Host "Removed $($Count) user(s) from $($UserpathOU)"
+  Write-Host "Removed $($Count) user(s) from $($UserpathOU)" -ForegroundColor red
 
   #Choose Organizational Unit
   $Count=0
@@ -507,13 +542,19 @@ function Clear-Groups()
   $SearchBase = "OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM"
   $Users = Get-ADUser -filter * -SearchBase $SearchBase -Properties MemberOf
   ForEach($User in $Users){
-      $User.MemberOf | Remove-ADGroupMember -Member $User -Confirm:$false
-      $Count=$Count+1
+      if ($User.Enabled -eq $True) {
+        $User.MemberOf | Remove-ADGroupMember -Member $User -Confirm:$false
+        $Count=$Count+1
+      }
+      else
+      {
+
+      }
   }
-  Write-Host "Removed $($Count) user(s) from $($UserpathOU)"
+  Write-Host "Removed $($Count) user(s) from $($UserpathOU)" -ForegroundColor red
 
   Write-Host ""
-  Write-Host " *** Finished clearing all users in groups *** `n"
+  Write-Host " *** Finished clearing all users in groups *** `n" -ForegroundColor magenta
 }
 
 
@@ -828,44 +869,57 @@ function Show-Header()
 {
   #making this script sexy
     Clear
-    Write-Host '      ____              __        '
-    Write-Host '     / __ \   ____ _   / /      ___ '
-    Write-Host '    / / / /  / __ `/  / /      / _ \'
-    Write-Host '   / /_/ /  / /_/ /  / /___   /  __/'
-    Write-Host '  /_____/   \__,_/  /_____/   \___/ '
+    Write-Host '      ____              __        ' -ForegroundColor Yellow
+    Write-Host '     / __ \   ____ _   / /      ___ ' -ForegroundColor Yellow
+    Write-Host '    / / / /  / __ `/  / /      / _ \' -ForegroundColor Yellow
+    Write-Host '   / /_/ /  / /_/ /  / /___   /  __/' -ForegroundColor Yellow
+    Write-Host '  /_____/   \__,_/  /_____/   \___/ ' -ForegroundColor Yellow
     Write-Host ''
-    Write-Host '    +-+-+-+-+-+-+-+-+-+-+ +-+-+-+'
-    Write-Host '    |P|o|w|e|r|s|h|e|l|l| |C|L|I|'
-    Write-Host '    +-+-+-+-+-+-+-+-+-+-+ +-+-+-+'
+    Write-Host '    +-+-+-+-+-+-+-+-+-+-+ +-+-+-+' -ForegroundColor Blue
+    Write-Host '    |P|o|w|e|r|s|h|e|l|l| |C|L|I|' -ForegroundColor Blue
+    Write-Host '    +-+-+-+-+-+-+-+-+-+-+ +-+-+-+' -ForegroundColor Blue
     Write-Host ''
-    Write-Host '  >> Author : David Lejeune'
-    Write-Host "  >> Created : 27/09/2016"
+    Write-Host '  >> Author : David Lejeune' -ForegroundColor Red
+    Write-Host "  >> Created : 27/09/2016" -ForegroundColor Red
     Write-Host ''
-    Write-Host ' #####################################'
-    Write-Host ' #    ACTIVE DIRECTORY MANAGEMENT    #'
-    Write-Host ' #####################################'
+    Write-Host ' #####################################'  -ForegroundColor DarkGreen
+    Write-Host ' #    ACTIVE DIRECTORY MANAGEMENT    #' -ForegroundColor DarkGreen
+    Write-Host ' #####################################' -ForegroundColor DarkGreen
     Write-Host ''
 }
 
 function Show-Menu()
 {
   #making this script sexy
-    Write-Host " Menu :";
+    Write-Host " Menu :" -ForegroundColor Magenta;
     Write-Host "";
-    Write-Host '    1. '$Menu1;
-    Write-Host '    2. '$Menu2;
-    Write-Host '    3. '$Menu3;
-    Write-Host '    4. '$Menu4;
-    Write-Host '    5. '$Menu5;
-    Write-Host '    6. '$Menu6;
-    Write-Host '    7. '$Menu7;
+    Write-Host '    1. '$Menu1  -ForegroundColor Gray;
+    Write-Host '    2. '$Menu2 -ForegroundColor Gray;
+    Write-Host '    3. '$Menu3 -ForegroundColor Magenta;
+    Write-Host '    4. '$Menu4 -ForegroundColor Gray;
+    Write-Host '    5. '$Menu5 -ForegroundColor Gray;
+    Write-Host '    6. '$Menu6 -ForegroundColor Gray;
+    Write-Host '    7. '$Menu7 -ForegroundColor Gray;
     Write-Host '   ';
-    Write-Host '    99.'$Menu99;
+    Write-Host '    99.'$Menu99 -ForegroundColor DarkGRay;
     Write-Host "";
 }
 
 #------------------------------------------------------------------------------
 #Script
+
+$Host.UI.RawUI.BackgroundColor = ($bckgrnd = 'black')
+$Host.UI.RawUI.ForegroundColor = 'White'
+$Host.PrivateData.ErrorForegroundColor = 'Red'
+$Host.PrivateData.ErrorBackgroundColor = $bckgrnd
+$Host.PrivateData.WarningForegroundColor = 'Magenta'
+$Host.PrivateData.WarningBackgroundColor = $bckgrnd
+$Host.PrivateData.DebugForegroundColor = 'Yellow'
+$Host.PrivateData.DebugBackgroundColor = $bckgrnd
+$Host.PrivateData.VerboseForegroundColor = 'Green'
+$Host.PrivateData.VerboseBackgroundColor = $bckgrnd
+$Host.PrivateData.ProgressForegroundColor = 'Cyan'
+$Host.PrivateData.ProgressBackgroundColor = $bckgrnd
 
 
 Show-Header;
@@ -878,60 +932,63 @@ switch ($Menu)
     {
         1
           {
-              Write-Host "`nYou have selected $(($Menu1).ToUpper())`n";
+              Write-Host "`nYou have selected $(($Menu1).ToUpper())`n" -ForegroundColor DarkGreen;
               $Menu = $Menu1;
               Create-OU;
           }
 
         2
           {
-              Write-Host "`nYou have selected $(($Menu2).ToUpper())`n";
+              Write-Host "`nYou have selected $(($Menu2).ToUpper())`n" -ForegroundColor DarkGreen;
               $Menu = $Menu2;
               Create-User;
           }
 
         3
           {
-              Write-Host "`nYou have selected $(($Menu3).ToUpper())`n";
+              Write-Host "`nYou have selected $(($Menu3).ToUpper())`n" -ForegroundColor DarkGreen;
               $Menu = $Menu3;
               Bulk-UserManagement;
           }
 
         4
           {
-              Write-Host "`nYou have selected $(($Menu4).ToUpper())`n";
+              Write-Host "`nYou have selected $(($Menu4).ToUpper())`n" -ForegroundColor DarkGreen;
               $Menu = $Menu4;
               Check-UserExistence;
           }
         5
           {
-              Write-Host "`nYou have selected $(($Menu5).ToUpper())`n";
+              Write-Host "`nYou have selected $(($Menu5).ToUpper())`n" -ForegroundColor DarkGreen;
               $Menu = $Menu5;
               Bulk-UserDelete;
           }
         6
           {
-              Write-Host "`nYou have selected $(($Menu6).ToUpper())`n";
+              Write-Host "`nYou have selected $(($Menu6).ToUpper())`n" -ForegroundColor DarkGreen;
               $Menu = $Menu6;
               Show-Users;
           }
         7
           {
-              Write-Host "`nYou have selected $(($Menu7).ToUpper())`n";
+              Write-Host "`nYou have selected $(($Menu7).ToUpper())`n" -ForegroundColor DarkGreen;
               $Menu = $Menu7;
               Delete-User;
           }
         99
           {
-              Write-Host "`nYou have selected $(($Menu99).ToUpper())`n";
+              Write-Host "`nYou have selected $(($Menu99).ToUpper())`n" -ForegroundColor DarkGreen;
               $Menu = $Menu99;
               Show-Description;
           }
 
-        default {"The choice could not be determined."}
+        default {
+          Write-Host "The choice could not be determined." -ForegroundColor Red
+        }
     }
 
     $sw.Stop()
     $time_elapsed = $sw.Elapsed.TotalSeconds
-    Write-Host " *** Task completed in "$time_elapsed" seconds. ***"
+    Write-Host " *** Task completed in "$time_elapsed" seconds. ***" -ForegroundColor Magenta
     Log-Action
+#Clear-Host
