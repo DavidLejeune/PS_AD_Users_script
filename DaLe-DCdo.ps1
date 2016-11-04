@@ -130,6 +130,7 @@ function Bulk-UserDelete()
 
   #header of table
   Write-Host "Get ready for the magic ...`n" -ForegroundColor Gray
+  Write-Host "Deleting users`n" -ForegroundColor white
   Write-Host "SAM      `tExists?      `t`tAction     `t`t`tOU" -ForegroundColor Yellow
   Write-Host "---      `t-------   `t`t------     `t`t`t--" -ForegroundColor Yellow
 
@@ -223,7 +224,7 @@ function Bulk-UserManagement()
 
   Write-Host "Crunching data like a boss"  -ForegroundColor red
   Write-Host "Get ready for the magic ...`n"  -ForegroundColor red
-  Write-Host "Creating users`n" -ForegroundColor red
+  Write-Host "Creating users`n" -ForegroundColor white
   Write-Host "SAM      `tExists?      `t`tAction     `t`t`tOU`t`t     `tSubgroup"  -ForegroundColor yellow
   Write-Host "---      `t-------   `t`t------     `t`t`t--`t`t     `t--------" -ForegroundColor yellow
 
@@ -446,7 +447,7 @@ function Bulk-UserManagement()
         Write-Host "$($SAM)      `t$($Result)`t`t$($Result2)`t$($UserpathOU)     `t`t$($SubOU)" -ForegroundColor Magenta
   }
   Write-Host ""
-  Write-Host " *** Finished creating new users and adding them to the correct OU *** `n"
+  Write-Host " *** Finished creating new users and adding them to the correct OU *** `n"-ForegroundColor cyan
   Clear-Groups
   Set-Group
   Set-Manager
@@ -454,8 +455,8 @@ function Bulk-UserManagement()
 
 function Clear-Groups()
 {
-  Write-Host "Removing all users from groups" -ForegroundColor yellow
-  Write-Host "" -ForegroundColor yellow
+  Write-Host "Removing all users from groups" -ForegroundColor white;
+  Write-Host "" -ForegroundColor yellow;
 
   #
   #$groups = (list of groups)
@@ -467,29 +468,12 @@ function Clear-Groups()
   #                  }
   #           }
 
-  #Choose Organizational Unit
-  $Count=0
-  $UserpathOU="Directie"
-  $SearchBase = "OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM"
-  $Users = Get-ADUser -filter * -SearchBase $SearchBase -Properties MemberOf
-  ForEach($User in $Users){
-      if ($User.Enabled -eq $True) {
-        $User.MemberOf | Remove-ADGroupMember -Member $User -Confirm:$false
-        $Count=$Count+1
-      }
-      else
-      {
-
-      }
-  }
-  #Get-ADGroupMember -identity "Directie" | get-aduser | Where {$_.Enabled -eq $true} | Remove-ADGroupMember -Member $_.SamAccountName -Confirm:$false
-  Write-Host "Removed $($Count) user(s) from $($UserpathOU)" -ForegroundColor red
 
   #Choose Organizational Unit
   $Count=0
   $UserpathOU="Administratie"
   $SearchBase = "OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM"
-  $Users = Get-ADUser -filter * -SearchBase $SearchBase -Properties MemberOf Enabled
+  $Users = Get-ADUser -filter * -SearchBase $SearchBase -Properties MemberOf
   ForEach($User in $Users){
       if ($User.Enabled -eq $True) {
         $User.MemberOf | Remove-ADGroupMember -Member $User -Confirm:$false
@@ -552,6 +536,25 @@ function Clear-Groups()
       }
   }
   Write-Host "Removed $($Count) user(s) from $($UserpathOU)" -ForegroundColor red
+
+
+  #Choose Organizational Unit
+  $Count=0
+  $UserpathOU="Directie"
+  $SearchBase = "OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM"
+  $Users = Get-ADUser -filter * -SearchBase $SearchBase -Properties MemberOf
+  ForEach($User in $Users){
+      if ($User.Enabled -eq $True) {
+        $User.MemberOf | Remove-ADGroupMember -Member $User -Confirm:$false
+        $Count=$Count+1
+      }
+      else
+      {
+
+      }
+  }
+  Write-Host "Removed $($Count) user(s) from $($UserpathOU)" -ForegroundColor red
+
 
   Write-Host ""
   Write-Host " *** Finished clearing all users in groups *** `n" -ForegroundColor magenta
