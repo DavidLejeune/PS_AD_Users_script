@@ -722,12 +722,20 @@ function Remove-UnfoundUser()
 
               if ($found -eq $true)
               {
-                $Result  = "User remains active"
-                Write-host $SAM_AD"    `t`t`t"$Result -ForegroundColor white
+                if (dsquery user -samid $SAM_AD)
+                {
+                  $Result  = "User remains active"
+                  Write-host $SAM_AD"    `t`t`t"$Result -ForegroundColor white
+                }
+                else
+                {
+                  $Result  = "New user detected"
+                  Write-host $SAM_AD"    `t`t`t"$Result -ForegroundColor magenta
+                }
               }
               else
               {
-                Disable-ADaccount -identity $SAM
+                Disable-ADaccount -identity $SAM_AD
                 $Result  = "User has been disabled"
                 Write-host $SAM_AD"    `t`t`t"$Result -ForegroundColor  Red
 
