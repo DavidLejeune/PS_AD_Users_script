@@ -211,7 +211,7 @@ function Bulk-UserDelete()
   }
 
   Write-Host ""
-  Write-Host " *** Finished bulk deleting users *** " -ForegroundColor cyan
+  Write-Host " *** Finished bulk deleting users *** " -ForegroundColor blue
 }
 
 function Bulk-UserManagement()
@@ -447,7 +447,7 @@ function Bulk-UserManagement()
         Write-Host "$($SAM)      `t$($Result)`t`t$($Result2)`t$($UserpathOU)     `t`t$($SubOU)" -ForegroundColor Magenta
   }
   Write-Host ""
-  Write-Host " *** Finished creating new users and adding them to the correct OU *** `n"-ForegroundColor cyan
+  Write-Host " *** Finished creating new users and adding them to the correct OU *** `n"-ForegroundColor blue
   Clear-Groups
   Set-Group
   Set-Manager
@@ -557,7 +557,7 @@ function Clear-Groups()
 
 
   Write-Host ""
-  Write-Host " *** Finished clearing all users in groups *** `n" -ForegroundColor magenta
+  Write-Host " *** Finished clearing all users in groups *** `n" -ForegroundColor blue
 }
 
 
@@ -566,9 +566,9 @@ function Set-Group()
   #import data
   $Users = Import-Csv -Delimiter ";" -Path "personeel.csv"
 
-  Write-Host "Setting Group(s) for users`n"
-  Write-Host "SAM      `tGroup/OU     `t`tSubgroup"
-  Write-Host "---      `t--------     `t`t--------"
+  Write-Host "Setting Group(s) for users`n" -ForegroundColor white
+  Write-Host "SAM      `tGroup/OU     `t`tSubgroup" -ForegroundColor yellow
+  Write-Host "---      `t--------     `t`t--------" -ForegroundColor yellow
   #loop through all users
   foreach ($User in $Users)
   {
@@ -732,10 +732,10 @@ function Set-Group()
               }
           }
     }
-        Write-Host "$($SAM)      `t$($Result)      `t`t$($Result2)"
+        Write-Host "$($SAM)      `t$($Result)      `t`t$($Result2)"  -ForegroundColor DarkGreen
   }
   Write-Host ""
-  Write-Host " *** Finished adding users to the correct group(s) *** `n"
+  Write-Host " *** Finished adding users to the correct group(s) *** `n" -ForegroundColor blue
 
 }
 
@@ -744,9 +744,9 @@ function Set-Manager()
   #import data
   $Users = Import-Csv -Delimiter ";" -Path "personeel.csv"
 
-  Write-Host "Setting manager for users in OU's`n"
-  Write-Host "SAM      `tManager of`t`tAction"
-  Write-Host "---      `t----------`t`t------"
+  Write-Host "Setting manager for users in OU's`n" -ForegroundColor white
+  Write-Host "SAM      `tManager of`t`tAction" -ForegroundColor yellow
+  Write-Host "---      `t----------`t`t------" -ForegroundColor yellow
 
   $manDirectie = ""
   $manAdministratie = ""
@@ -853,11 +853,11 @@ function Set-Manager()
           if ($SubOU -eq "")
           {}
             else{
-              Write-Host "$($SAM)      `t$($SubOU)`t`t$($Result)"
+              Write-Host "$($SAM)      `t$($SubOU)`t`t$($Result)"  -ForegroundColor Magenta
             }
   }
   Write-Host ""
-  Write-Host " *** Finished setting managers for all users *** "
+  Write-Host " *** Finished setting managers for all users *** " -ForegroundColor Blue
 }
 
 
@@ -900,9 +900,9 @@ function Show-Menu()
     Write-Host '    2. '$Menu2 -ForegroundColor Gray;
     Write-Host '    3. '$Menu3 -ForegroundColor Magenta;
     Write-Host '    4. '$Menu4 -ForegroundColor Gray;
-    Write-Host '    5. '$Menu5 -ForegroundColor Gray;
-    Write-Host '    6. '$Menu6 -ForegroundColor Gray;
-    Write-Host '    7. '$Menu7 -ForegroundColor Gray;
+    Write-Host '    5. '$Menu5 -ForegroundColor Red;
+    Write-Host '    6. '$Menu6 -ForegroundColor DarkMagenta;
+    Write-Host '    7. '$Menu7 -ForegroundColor DarkGreen;
     Write-Host '   ';
     Write-Host '    99.'$Menu99 -ForegroundColor DarkGRay;
     Write-Host "";
@@ -992,6 +992,6 @@ switch ($Menu)
 
     $sw.Stop()
     $time_elapsed = $sw.Elapsed.TotalSeconds
-    Write-Host " *** Task completed in "$time_elapsed" seconds. ***" -ForegroundColor Magenta
+    Write-Host " *** Task completed in "$time_elapsed" seconds. ***" -ForegroundColor Yellow
     Log-Action
 #Clear-Host
