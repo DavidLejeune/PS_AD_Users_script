@@ -453,107 +453,53 @@ function Bulk-UserManagement()
   Set-Manager
 }
 
+function Remove-GroupMembershipDL()
+{
+  $SearchBase = "OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM"
+  $Users = Get-ADUser -filter * -SearchBase $SearchBase -Properties MemberOf
+  ForEach($User in $Users){
+      if ($User.Enabled -eq $True) {
+        $User.MemberOf | Remove-ADGroupMember -Member $User -Confirm:$false
+        $Count=$Count+1
+      }
+      else
+      {
+
+      }
+  }
+  Write-Host "Removed $($Count) user(s) from $($UserpathOU)" -ForegroundColor red
+}
+
 function Clear-Groups()
 {
   Write-Host "Removing all users from groups" -ForegroundColor white;
   Write-Host "" -ForegroundColor yellow;
 
-  #
-  #$groups = (list of groups)
-  #foreach($group in $groups){
-  #              $users=get-adgroupmember $group
-  #              foreach($user in $users){
-  #                                  get-aduser $user.name -properties enabled|if ($_.enabled -eq $false){remove-adgroupmember $group -member $_.name}
-  #                                                  }
-  #                  }
-  #           }
-
-
   #Choose Organizational Unit
   $Count=0
   $UserpathOU="Administratie"
-  $SearchBase = "OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM"
-  $Users = Get-ADUser -filter * -SearchBase $SearchBase -Properties MemberOf
-  ForEach($User in $Users){
-      if ($User.Enabled -eq $True) {
-        $User.MemberOf | Remove-ADGroupMember -Member $User -Confirm:$false
-        $Count=$Count+1
-      }
-      else
-      {
-
-      }
-  }
-  Write-Host "Removed $($Count) user(s) from $($UserpathOU)" -ForegroundColor red
+  Remove-GroupMembershipDL
 
   #Choose Organizational Unit
   $Count=0
   $UserpathOU="Automatisering"
-  $SearchBase = "OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM"
-  $Users = Get-ADUser -filter * -SearchBase $SearchBase -Properties MemberOf
-  ForEach($User in $Users){
-      if ($User.Enabled -eq $True) {
-        $User.MemberOf | Remove-ADGroupMember -Member $User -Confirm:$false
-        $Count=$Count+1
-      }
-      else
-      {
-
-      }
-  }
-  Write-Host "Removed $($Count) user(s) from $($UserpathOU)" -ForegroundColor red
+  Remove-GroupMembershipDL
 
   #Choose Organizational Unit
   $Count=0
   $UserpathOU="Productie"
-  $SearchBase = "OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM"
-  $Users = Get-ADUser -filter * -SearchBase $SearchBase -Properties MemberOf
-  ForEach($User in $Users){
-      if ($User.Enabled -eq $True) {
-        $User.MemberOf | Remove-ADGroupMember -Member $User -Confirm:$false
-        $Count=$Count+1
-      }
-      else
-      {
-
-      }
-  }
-  Write-Host "Removed $($Count) user(s) from $($UserpathOU)" -ForegroundColor red
+  Remove-GroupMembershipDL
 
   #Choose Organizational Unit
   $Count=0
   $UserpathOU="Staf"
-  $SearchBase = "OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM"
-  $Users = Get-ADUser -filter * -SearchBase $SearchBase -Properties MemberOf
-  ForEach($User in $Users){
-      if ($User.Enabled -eq $True) {
-        $User.MemberOf | Remove-ADGroupMember -Member $User -Confirm:$false
-        $Count=$Count+1
-      }
-      else
-      {
-
-      }
-  }
-  Write-Host "Removed $($Count) user(s) from $($UserpathOU)" -ForegroundColor red
+  Remove-GroupMembershipDL
 
 
   #Choose Organizational Unit
   $Count=0
   $UserpathOU="Directie"
-  $SearchBase = "OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM"
-  $Users = Get-ADUser -filter * -SearchBase $SearchBase -Properties MemberOf
-  ForEach($User in $Users){
-      if ($User.Enabled -eq $True) {
-        $User.MemberOf | Remove-ADGroupMember -Member $User -Confirm:$false
-        $Count=$Count+1
-      }
-      else
-      {
-
-      }
-  }
-  Write-Host "Removed $($Count) user(s) from $($UserpathOU)" -ForegroundColor red
+  Remove-GroupMembershipDL
 
 
   Write-Host ""
