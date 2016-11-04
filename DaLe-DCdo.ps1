@@ -44,24 +44,24 @@ $Menu99 = "Show Description"
 function Show-Description()
 {
   #feeding the narcistic beast
-  "# Description"
-  "# -----------"
-  "# Active Directory Management tool"
-  "# Created for Task1 Operating Systems Windows 2 @ Vives"
-  "#"
-  "# Author : David Lejeune"
-  "# Created : 27/09/2016"
-  "# School : Vives"
-  "# Course : Operating Systems Windows 2"
-  "# Class : 3PB-ICT"
-  "# Group : 2"
-  "#"
-  "# Task goals"
-  "# ----------"
-  "# Manage an Active Directory on Windows Server 2012 R2"
-  "# 1)Bulk create users based on csv (OK - Tested)"
-  "# 2)Update users based on weekly csv updates (OK - TBTested)"
-  ""
+  Write-Host "# Description" -ForegroundColor white
+  Write-Host "# -----------" -ForegroundColor white
+  Write-Host "# Active Directory Management tool" -ForegroundColor yellow
+  Write-Host "# Created for Task1 Operating Systems Windows 2 @ Vives" -ForegroundColor yellow
+  Write-Host ""
+  Write-Host "# Author : David Lejeune" -ForegroundColor magenta
+  Write-Host "# Created : 27/09/2016" -ForegroundColor magenta
+  Write-Host "# School : Vives" -ForegroundColor magenta
+  Write-Host "# Course : Operating Systems Windows 2" -ForegroundColor magenta
+  Write-Host "# Class : 3PB-ICT" -ForegroundColor magenta
+  Write-Host "# Group : 2" -ForegroundColor magenta
+  Write-Host ""
+  Write-Host "# Task goals" -ForegroundColor red
+  Write-Host "# ----------" -ForegroundColor red
+  Write-Host "# Manage an Active Directory on Windows Server 2012 R2" -ForegroundColor gray
+  Write-Host "# 1)Bulk create users based on csv (OK - Tested)" -ForegroundColor darkgreen
+  Write-Host "# 2)Update users based on weekly csv updates (1/2 OK - TBTested)" -ForegroundColor darkcyan
+  Write-Host ""
 }
 
 function Create-OU()
