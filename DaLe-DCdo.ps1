@@ -295,7 +295,18 @@ function Bulk-UserManagement()
           Get-ADUser $SAM| Move-ADObject -TargetPath "OU=$($UserpathOU),OU=PFAfdelingen,DC=POLIFORMADL,DC=COM"
           # rename department
           Get-ADUser $SAM| Set-ADUser -Department $UserpathOU
-          $Result2 =  "Update user                  "
+
+          $ActiveUser = Get-ADUser -Identity $SAM
+          if ($ActiveUser.Enabled -eq $False)
+          {
+              Enable-ADAccount -Identity $SAM
+              $Result2 =  "Reactivated user             "
+          }
+          else{
+
+              $Result2 =  "Update user                  "
+          }
+
         }
         else
         {
