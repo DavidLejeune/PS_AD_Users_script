@@ -448,7 +448,7 @@ function Bulk-UserManagement()
         }
         If ($Result -eq "User not found")
         {
-          Write-Host "$($SAM)      `t$($Result)`t`t$($Result2)`t$($UserpathOU)     `t`t$($SubOU)" -ForegroundColor yellow
+          Write-Host "$($SAM)      `t$($Result)`t`t$($Result2)`t$($UserpathOU)     `t`t$($SubOU)" -ForegroundColor cyan
         }
         else
         {
@@ -482,7 +482,7 @@ function Remove-GroupMembershipDL()
 
 function Clear-Groups()
 {
-  Write-Host "Removing all users from groups" -ForegroundColor white;
+  Write-Host "Removing all active users from groups" -ForegroundColor white;
   Write-Host "" -ForegroundColor yellow;
 
   #Choose Organizational Unit
