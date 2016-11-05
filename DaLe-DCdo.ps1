@@ -732,8 +732,18 @@ function Remove-UnfoundUser()
               {
                 if (dsquery user -samid $SAM_AD)
                 {
-                  $Result  = "User remains active"
-                  Write-host $SAM_AD"    `t`t`t"$Result -ForegroundColor white
+                  $ActiveUser = Get-ADUser -Identity $SAM_AD
+                  if ($ActiveUser.Enabled -eq $True)
+                  {
+                    $Result  = "User remains active"
+                    Write-host $SAM_AD"    `t`t`t"$Result -ForegroundColor white
+                  }
+                  else
+                  {
+                    $Result  = "Old user reactivated"
+                    Write-host $SAM_AD"    `t`t`t"$Result -ForegroundColor darkgray
+                  }
+
                 }
                 else
                 {
