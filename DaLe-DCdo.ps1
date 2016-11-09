@@ -296,11 +296,12 @@ function Bulk-UserManagement()
           # rename department
           Get-ADUser $SAM| Set-ADUser -Department $UserpathOU
 
+          #making sure if a former user (disabled) is found that he is set active again
           $ActiveUser = Get-ADUser -Identity $SAM
           if ($ActiveUser.Enabled -eq $False)
           {
               Enable-ADAccount -Identity $SAM
-              $Result2 =  "Reactivated user             "
+              $Result2 =  "Reactivated former user      "
           }
           else{
 
@@ -326,7 +327,7 @@ function Bulk-UserManagement()
           }
 
           ##################################################################
-          # BLOCK THAT HELPS DISPLAY ALL THE BEAUTIFUL STUFF
+          # BLOCK THAT HELPS DISPLAY ALL THE BEAUTIFUL STUFF but only for new users
            #assign to the correct principal group
            $UserpathOU = ""
            $Boss = "False"
@@ -454,7 +455,7 @@ function Bulk-UserManagement()
 
                }
            }
-         # END OF BLOCK THAT HELPS DISPLAY ALL THE BEAUTIFUL STUFF
+         # END OF BLOCK THAT HELPS DISPLAY ALL THE BEAUTIFUL STUFF for new users
          ##################################################################
         }
         If ($Result -eq "User not found")
@@ -555,7 +556,7 @@ function Set-Group()
       $Logistiek = $User.Productie
       $ImportExport = $User.Staf
 
-        $DistinguishedName = "$($DistinguishedName)OU=PFAfdelingen,DC=POLIFORMA,DC=COM,"
+      $DistinguishedName = "$($DistinguishedName)OU=PFAfdelingen,DC=POLIFORMA,DC=COM,"
 
         $Result = ""
         $Result2 = ""
@@ -713,8 +714,8 @@ function Remove-UnfoundUser()
     $Users = Import-Csv -Delimiter ";" -Path "personeel.csv"
 
     Write-Host "Disabling users not found in CSV`n" -ForegroundColor white
-    Write-Host "SAM          `t`t`tAction" -ForegroundColor yellow
-    Write-Host "---          `t`t`t------" -ForegroundColor yellow
+    Write-Host "SAM           `t`t`tAction" -ForegroundColor yellow
+    Write-Host "---           `t`t`t------" -ForegroundColor yellow
 
 
     $usersAD = Get-ADUser -SearchBase "ou=PFAfdelingen,dc=POLIFORMADL,dc=COM" -filter *
@@ -747,19 +748,19 @@ function Remove-UnfoundUser()
                   if ($ActiveUser.Enabled -eq $True)
                   {
                     $Result  = "User remains active"
-                    Write-host $SAM_AD"    `t`t`t"$Result -ForegroundColor white
+                    Write-host $SAM_AD"     `t`t`t"$Result -ForegroundColor white
                   }
                   else
                   {
                     $Result  = "Old user reactivated"
-                    Write-host $SAM_AD"    `t`t`t"$Result -ForegroundColor darkgray
+                    Write-host $SAM_AD"     `t`t`t"$Result -ForegroundColor darkgray
                   }
 
                 }
                 else
                 {
                   $Result  = "New user detected"
-                  Write-host $SAM_AD"    `t`t`t"$Result -ForegroundColor magenta
+                  Write-host $SAM_AD"     `t`t`t"$Result -ForegroundColor magenta
                 }
               }
               else
@@ -769,12 +770,12 @@ function Remove-UnfoundUser()
                 {
                     Disable-ADaccount -identity $SAM_AD
                     $Result  = "User has been disabled"
-                    Write-host $SAM_AD"    `t`t`t"$Result -ForegroundColor  Red
+                    Write-host $SAM_AD"     `t`t`t"$Result -ForegroundColor  Red
                 }
                 else{
                     Disable-ADaccount -identity $SAM_AD
                     $Result  = "User remains disabled"
-                    Write-host $SAM_AD"    `t`t`t"$Result -ForegroundColor  Green
+                    Write-host $SAM_AD"     `t`t`t"$Result -ForegroundColor  Green
 
                 }
 
