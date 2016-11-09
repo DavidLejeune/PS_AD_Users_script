@@ -1,3 +1,8 @@
-date,source,security_breach
-11/9/2016 10:28:40 PM,HP-ENVY\David,USB policy bypass attempt,
-11/9/2016 10:31:04 PM,HP-ENVY\David,USB policy bypass attempt,
+date,time,source,security_breach
+11/9/2016 ,10:28:40 PM,HP-ENVY\David,USB policy bypass attempt,
+11/9/2016 ,10:31:04 PM,HP-ENVY\David,USB policy bypass attempt,
+20161109,223356,HP-ENVY\David,USB policy bypass attempt,
+09/11/2016,223444,HP-ENVY\David,USB policy bypass attempt,
+09/11/2016,22:34:59,HP-ENVY\David,USB policy bypass attempt,
+09/11/2016,22:36:30,HP-ENVY\David,USB policy bypass attempt,
+09/11/2016,22:36:53,HP-ENVY\David,USB policy bypass attempt,
